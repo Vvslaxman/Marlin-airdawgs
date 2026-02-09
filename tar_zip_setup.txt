@@ -1,0 +1,62 @@
+laxman@LAPTOP-D0BA5CIS:~/marlin/mlflow/8893/mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d$ tmux kill-server
+laxman@LAPTOP-D0BA5CIS:~/marlin/mlflow/8893/mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d$ ^C
+laxman@LAPTOP-D0BA5CIS:~/marlin/mlflow/8893/mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d$ rm -rf ~/marlin/* ~/marlin/mlflow/8893/mlflow-*
+laxman@LAPTOP-D0BA5CIS:~/marlin/mlflow/8893/mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d$ ls -la ~/marlin
+ls -la ~/marlin/mlflow/8893
+total 8
+drwxr-xr-x  2 laxman laxman 4096 Feb  9 20:42 .
+drwxr-x--- 10 laxman laxman 4096 Feb  6 21:09 ..
+ls: cannot access '/home/laxman/marlin/mlflow/8893': No such file or directory
+laxman@LAPTOP-D0BA5CIS:~/marlin/mlflow/8893/mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d$ ls
+laxman@LAPTOP-D0BA5CIS:~/marlin/mlflow/8893/mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d$ cd ~
+laxman@LAPTOP-D0BA5CIS:~$ ls
+marlin  mlflow
+laxman@LAPTOP-D0BA5CIS:~$ cd marlin
+laxman@LAPTOP-D0BA5CIS:~/marlin$ ls
+laxman@LAPTOP-D0BA5CIS:~/marlin$ mkdir -p mlflow/8893
+cd mlflow/8893
+laxman@LAPTOP-D0BA5CIS:~/marlin/mlflow/8893$ ls
+laxman@LAPTOP-D0BA5CIS:~/marlin/mlflow/8893$ cp /mnt/c/Users/V.Ashok/Downloads/mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d.tar.gz .
+laxman@LAPTOP-D0BA5CIS:~/marlin/mlflow/8893$ ls
+mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d.tar.gz
+laxman@LAPTOP-D0BA5CIS:~/marlin/mlflow/8893$ tar -xzf mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d.tar.gz
+laxman@LAPTOP-D0BA5CIS:~/marlin/mlflow/8893$ ls
+mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d  mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d.tar.gz
+laxman@LAPTOP-D0BA5CIS:~/marlin/mlflow/8893$ cd mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d
+laxman@LAPTOP-D0BA5CIS:~/marlin/mlflow/8893/mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d$ git init
+git add .
+git commit -m "before first prompt"
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint:
+hint:   git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint:   git branch -m <name>
+Initialized empty Git repository in /home/laxman/marlin/mlflow/8893/mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d/.git/
+[master (root-commit) 9623565] before first prompt
+ 2998 files changed, 605875 insertions(+)
+ create mode 100644 .circleci/config.yml
+ create mode 100644 .devcontainer/Dockerfile.devcontainer
+ create mode 100644 .devcontainer/Dockerfile.devcontainer.dockerignore
+.....
+ create mode 100644 tests/xgboost/test_xgboost_model_export.py
+laxman@LAPTOP-D0BA5CIS:~/marlin/mlflow/8893/mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d$ git status
+On branch master
+nothing to commit, working tree clean
+laxman@LAPTOP-D0BA5CIS:~/marlin/mlflow/8893/mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d$ ls
+CHANGELOG.md         Dockerfile              ISSUE_TRIAGE.rst  README.rst         assets       docker    mlflow              pylintrc        requirements
+CODE_OF_CONDUCT.rst  EXTRA_DEPENDENCIES.rst  LICENSE.txt       README_SKINNY.rst  conftest.py  docs      mlflow-charter.pdf  pyproject.toml  setup.py
+CONTRIBUTING.md      ISSUE_POLICY.md         MANIFEST.in       SECURITY.md        dev          examples  pylint_plugins      pytest.ini      tests
+laxman@LAPTOP-D0BA5CIS:~/marlin/mlflow/8893/mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d$ cp /mnt/c/Users/V.Ashok/Downloads/claude-hfi ./claude-hfi
+laxman@LAPTOP-D0BA5CIS:~/marlin/mlflow/8893/mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d$ ls
+CHANGELOG.md         EXTRA_DEPENDENCIES.rst  MANIFEST.in        assets       docker    mlflow-charter.pdf  pytest.ini
+CODE_OF_CONDUCT.rst  ISSUE_POLICY.md         README.rst         claude-hfi   docs      pylint_plugins      requirements
+CONTRIBUTING.md      ISSUE_TRIAGE.rst        README_SKINNY.rst  conftest.py  examples  pylintrc            setup.py
+Dockerfile           LICENSE.txt             SECURITY.md        dev          mlflow    pyproject.toml      tests
+laxman@LAPTOP-D0BA5CIS:~/marlin/mlflow/8893/mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d$ chmod +x claude-hfi
+ls -l claude-hfi
+-rwxr-xr-x 1 laxman laxman 115415105 Feb  9 20:48 claude-hfi
