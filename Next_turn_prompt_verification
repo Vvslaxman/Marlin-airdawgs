@@ -1,0 +1,104 @@
+TURN-1 RESULTS:
+
+▶ Model A Pros
+  The updates to Model A for the way it gets the original attribute on a class
+  work by walking its method resolution order (MRO) from child to parent classes
+  using inspect.getmro. This implementation meets the requirement that the lookup
+  of an attribute should first check the child class and then walk up through
+  the hierarchy of ancestor classes. For each class in the MRO, it looks for an
+  attribute named _gorilla_original_{name} before falling back to the attribute
+  defined on that class. This matches the requirement that patched originals take
+  precedence over non-patched attribute objects.
+  The implementation supports the bypass_descriptor_protocol feature by returning
+  the raw object for the attribute from __dict__ when requested. This allows the
+  bypass of the descriptor unwrapping process. This meets the requirement that
+  the original values should be returned as raw object attributes and not trigger
+  any descriptor logic when the bypass feature has been turned on.
+  The logic to revert attributes back to their original state and completely
+  remove them if they do not exist before applying a patch meets the requirement
+  for reversibility.
+  The size of the changes will genuinely be minimal and localized only to the
+  gorilla utility. The focus is primarily on get_original_attribute, apply, and
+  revert but does not include restructing unrelated decorator logic and
+  introducing any new abstractions which also complies with the
+  avoidance-of-overengineering constraint.
+
+
+▶ Model A Cons
+  Instance-level attribute resolution in model A is handled in a straightforward
+  manner that does not distinguish between instance logic and class logic other
+  than to perform a very basic check before using the class metadata and
+  returning the instance's attributes. Even though model A achieves the required
+  result from an operational point of view, it does not use access-object
+  object.__getattribute__ to access the instance solution without going through
+  the descriptor mechanism; therefore, it can easily be viewed as an explicit
+  descriptor bypass technique. However, if descriptor bypass has been disabled,
+  getattr will still go through the logic of resolving the descriptor pointer
+  even though this is in line with general-python functionality.
+
+▶ Model B Pros
+  The MRO in Model B traverses from Child (the instance) to Parent (the class),
+  and begins checking for _gorilla_original_{name} before checking the regular
+  attributes, which fulfills the hierarchical resolution requirements. In
+  addition, it has a much clearer separation of class-level logic from
+  instance-level logic, and when descriptor bypass is requested (and therefore,
+  when raw instance attributes are being accessed), the use of
+  object.__getattribute__ is clearly indicated to handle that.
+  This logic precisely restores or eliminates attributes from the object, and
+  appears to be quite resilient through numerous patching and unpatching cycles.
+  The way in which they implemented this logic guarantees that the original
+  attribute will be present, and that it will be returned to the object in the
+  correct state, thereby meeting the requirements of restoration
+
+▶ Model B Cons
+  Model B has introduced additional complexity by providing several levels of
+  branching and further developing the instance-level capabilities required for
+  resolving hierarchies and supporting descriptor overrides. As a result,
+  significant modifications were made to the existing method for handling
+  misalignment across multiple methods, which greatly increased the need to
+  implement patches because of the additional areas of overlap created by these
+  modifications. This additional complexity can be thought of as excessive
+  because it would create a need to adjust all areas affected by this change
+  (e.g., each branch and type of hierarchy existed within the same instance) due
+  to the increased number of patches that will need to be replaced.
+
+▶ Overall Preference Justification
+  Both of the models meet all functional expectations related to both the correct
+  resolution of Model Resolution Order-based objects, how to prioritize
+  _gorrila_original_* objects, allow for descriptor bypassing, and the exact
+  restoration of original descriptor values when the object is reversed. The
+  implementation requirements also dictate that the models should only be
+  minimally affected, with each of the changes remaining contained within the
+  model itself, without changing unrelated parts.
+  For the purposes of demonstrating the intended functionality, Model A has
+  achieved this by providing only a small amount of change to the underlying
+  structure and adding no new complexities to any of the other parts of the
+  system. Model B has also achieved the functionality, but it was designed with
+  additional structural logic in some cases beyond what is necessary to meet the
+  intended function.
+  Given that Model A has delivered functionality as required while minimizing
+  scope of change, therefore, it is a better alignment with the specified
+  requirements than Model B.
+
+Our Goal:
+####
+Initial Prompt:
+Fix issues in MLflow’s internal gorilla patching utilities to ensure original attributes are correctly resolved in complex class hierarchies and that patch reversion restores objects exactly to their pre-patch state. Update the implementation of `get_original_attribute` so that attribute lookup walks the method resolution order from child classes to parent classes, and for each class checks for the presence of `_gorilla_original_{attr_name}` before falling back to the class attribute. Ensure this logic correctly handles cases where only some classes in a hierarchy were patched. Add support for bypassing the descriptor protocol via a `bypass_descriptor_protocol` argument so that when enabled, the raw attribute object is returned without triggering descriptor resolution. Remove the `get_attribute` helper and replace its usages with `get_original_attribute(..., bypass_descriptor_protocol=True)`, and eliminate unused patch management helpers such as `create_patches` and `patches`. Guarantee that reverting a patch restores the object exactly to its original state, including removing attributes that did not originally exist and cleaning up any `_gorilla_original_*` markers. Add comprehensive unit tests to validate hierarchy resolution, descriptor handling, patching of non-existent attributes, and full reversion behaviour, while ensuring all existing tests continue to pass without regression.
+
+Repo Definition:
+MLflow is an open source platform for managing the end-to-end machine learning lifecycle, including experiment tracking, model packaging, model registry, and deployment. The repository contains a large Python codebase with internal utilities that support dynamic patching and autologging integrations across multiple machine learning libraries. The `mlflow.utils.gorilla` module provides monkey-patching infrastructure used by autologging and other internal systems. Because these utilities modify class attributes and methods at runtime, they must correctly handle Python’s method resolution order, descriptor protocol behaviour, and inheritance hierarchies. Any inconsistency in patch resolution or reversion can lead to subtle bugs, especially when interacting with third-party libraries and nested class structures.
+
+PR Definition:
+This change strengthens MLflow’s internal gorilla patching logic by correcting how original attributes are located and restored. The updated `get_original_attribute` implementation ensures that attribute resolution proceeds from child to parent classes and prioritizes stored `_gorilla_original_*` attributes to avoid returning incorrect values when only parts of a class hierarchy were patched. The change introduces controlled bypassing of the descriptor protocol when required, consolidates attribute retrieval logic by removing redundant helpers, and removes unused patch management utilities to simplify the implementation. Patch reversion behaviour is corrected so that objects are restored exactly to their original state without residual side effects. Additional unit tests are introduced to validate the corrected behaviour across various inheritance and descriptor scenarios while preserving compatibility with existing autologging functionality.
+
+Edge Cases:
+The implementation must correctly handle class hierarchies where only a subset of classes were patched, including cases where parent classes define attributes that are overridden or modified in child classes. It must correctly resolve attributes that implement the descriptor protocol, such as properties and methods, and allow explicit bypassing of descriptor resolution when necessary. The logic must properly handle patching attributes that did not originally exist and ensure those attributes are removed entirely upon reversion. Multiple patch and revert cycles must not corrupt object state or leave residual metadata. The changes must not introduce regressions in autologging workflows or affect unrelated integrations that depend on gorilla patching behaviour.
+
+Acceptance Criteria:
+The `get_original_attribute` function must reliably resolve the correct original attribute across mixed patched and unpatched class hierarchies by searching from child to parent and prioritizing `_gorilla_original_*` attributes. Descriptor bypass behaviour must function correctly when explicitly requested. Reverting patches must restore objects exactly to their original state, including proper clean-up of temporary attributes and restoration of missing attributes. Removed helper functions must no longer be referenced anywhere in the codebase. All newly added unit tests must pass, all existing tests must continue to pass without regression, and MLflow’s autologging infrastructure must remain fully functional after the changes.#### 
+
+Can i proceed giving below as my Turn-2 prompt that will help/lead me to achieve my goal:
+####
+Refine the gorilla patch implementation to eliminate redundant or unused patch management utilities. Remove create_patches and patches methods and ensure no remaining code references them. Confirm that patch application stores original attributes consistently using _gorilla_original_{attr_name} and that this metadata is cleaned up completely when a patch is reverted.
+Strengthen the revert logic so that multiple patch and unpatch cycles do not corrupt object state or leave residual markers. Ensure that class attributes, instance attributes, and inherited attributes are handled consistently during both patching and restoration. Verify that partial hierarchy patching scenarios behave correctly when patches are applied at different inheritance levels.
+Add or update targeted unit tests under tests/utils/test_gorilla.py to validate hierarchical resolution behavior and correct cleanup after revert operations.####
