@@ -477,41 +477,107 @@ With that content we will have to create below required points in simple human w
 This our main initial goal.
 For reference this is how those 5 points must look like, Note: This below content was used for another PR work under this same Marlin Project, so just consider it for framing content suitable to our current selected working PR
 ####
-Initial Prompt: 
-Update Gaphor’s property editor to clearly separate model-level and diagram-level behavior for UML Dependency elements. Add a dedicated property page for Dependency model objects that shows Source and Target when selected from the model tree. Refactor the existing Dependency diagram item editor into a separate item-specific page with updated identifiers. Add support for the UML isFinalSpecialization attribute on classifiers and expose it through a toggle in the classifier property editor using proper transaction handling. Update the GTK UI definitions where needed and add unit tests to verify both Dependency property visibility and classifier specialization updates. The changes should follow the UML specification and leave the code production ready.
+Initial prompt:
 
-Repo Definition: 
-Gaphor is a Python-based UML and SysML modeling application with a GTK user interface. It provides diagram editing and a standards compliant UML data model. The application separates model data, diagram presentations and UI logic to support interactive modeling and programmatic use.
+"Hey, I need to clean up the public API structure for our Ray Serve LLM module. Right now it's kind of a mess - everything's just dumped into `ray.serve.llm` and the naming isn't great.
 
-PR definition: 
-This pull request improves how dependency properties and classifier specialization are handled in Gaphor. It separates the property pages so that model level dependency objects show Source and Target when selected from the model tree. Diagram specific dependency settings remain on the diagram item page. The PR also adds support for the UML isFinalSpecialization attribute on classifiers and exposes it in the property editor. Unit tests are updated to validate the new behavior.
+**What I want to achieve:**
+
+Create a better organized namespace structure:
+- `ray.serve.llm.deployment` - for actual deployment classes (`LLMServer`, `PDServer`)
+- `ray.serve.llm.ingress` - for the OpenAI-compatible ingress (`OpenAiIngress`, renamed from `LLMRouter`)
+- `ray.serve.llm.request_router` - for request routing strategies (`PrefixCacheAffinityRouter`)
+
+**Specific tasks:**
+
+1. Create `python/ray/serve/llm/deployment.py`:
+   - Export `LLMServer` (wraps internal `_LLMServer`)
+   - Export `PDServer` (wraps internal `PDProxyServer`) - this is new to public API!
+   - Add `@PublicAPI(stability=""alpha"")` decorator
+   - Write good docstrings explaining what each does
+
+2. Create `python/ray/serve/llm/ingress.py`:
+   - Export `OpenAiIngress` (wraps internal `_LLMRouter`)
+   - Better name that actually tells you it's an OpenAI-compatible endpoint
+
+3. Create `python/ray/serve/llm/request_router.py`:
+   - Export `PrefixCacheAffinityRouter` (wraps internal router)
+   - This is the KV-cache aware router for better cache hit rates
+
+4. Update `python/ray/serve/llm/__init__.py`:
+   - Keep old imports (`LLMRouter`, `LLMServer` at top level) but mark as deprecated
+   - Use `@Deprecated` decorator from rllib (they have nicer warning messages)
+   - Add `build_pd_openai_app` to public exports
+
+5. Update docs in `doc/source/serve/llm/serving-llms.rst`:
+   - Replace `LLMRouter` references with `OpenAiIngress`
+   - Update import examples
+
+6. Update release configs:
+   - Change `import_path` from internal `ray.llm._internal...` to public `ray.serve.llm:build_pd_openai_app`
+
+**Important:**
+- Don't break existing code! Old imports must still work (with deprecation warning)
+- All new public classes need `@PublicAPI(stability=""alpha"")`
+- Keep docstrings clean and helpful - people will be reading these"	
+
+Repo Definition:
+
+"- Ray is basically the go-to framework when you need to scale Python/AI apps across multiple machines. Think of it as ""distributed computing made easy"" - you get actors, tasks, and a whole ecosystem of ML libraries
+- Ray Serve is the serving layer - lets you deploy ML models as scalable microservices. Recently they've been pushing hard on LLM serving with vLLM integration
+- The `ray.serve.llm` module is their newer stuff for LLM-specific deployments - handles things like model loading, OpenAI-compatible APIs, and some fancy features like prefill-decode disaggregation (basically splitting the compute-heavy prefill phase from decode for better GPU utilization)"	
+
+PR definition:
+
+"- So this PR is essentially a ""spring cleaning"" for the public API structure. The old imports were a bit messy - everything dumped into `ray.serve.llm` namespace without much organization
+- The new structure is way cleaner and more intuitive:
+  - `ray.serve.llm.deployment` → `LLMServer`, `PDServer` (the actual deployments)
+  - `ray.serve.llm.ingress` → `OpenAiIngress` (renamed from `LLMRouter` - much clearer what it does now)
+  - `ray.serve.llm.request_router` → `PrefixCacheAffinityRouter` (KV-cache aware routing)
+- They're also exposing `PDServer` (Prefill-Decode disaggregated server) as a public alpha API - this was previously internal only
+- Old imports still work but are deprecated - so existing code won't break immediately, but you'll get warnings nudging you to migrate
+- Also renamed `build_app` to `build_pd_openai_app` in the public namespace - way more descriptive"	
 
 Edge cases:
-The property editor must behave correctly when a dependency is selected from the model tree instead of a diagram. It must also handle cases where Source or Target elements are not resolved yet. The classifier specialization toggle must not break when the attribute is unset or when the selection changes quickly.
+
+"- Backward compatibility is the big one - old `from ray.serve.llm import LLMRouter` still needs to work but show deprecation warnings. Don't want to break existing user code
+- The deprecation decorator needs to handle both class imports and function imports gracefully
+- `PDServer` is new to public API - need to make sure the constructor args are clean and well-documented since users will see them for first time
+- Import order matters in Python - circular imports could be an issue when splitting into submodules. Need to be careful with the `__init__.py` structure
+- Type hints and IDE autocomplete should still work with the new module structure
+- Documentation needs updating - any examples using old `LLMRouter` name should be changed to `OpenAiIngress`
+- Release configs (those YAML files) reference internal paths - need to update to use new public `build_pd_openai_app`"	
 
 Acceptance Criteria:
-Selecting a dependency from the model tree must show a property page with Source and Target displayed using qualified names. Selecting a dependency item on a diagram must continue to show only diagram related settings. The isFinalSpecialization toggle must correctly update the classifier model state and persist across UI refreshes. All existing and new tests must pass without regressions.
+
+"- New imports work as expected:
+  - `from ray.serve.llm.deployment import LLMServer, PDServer` ✓
+  - `from ray.serve.llm.ingress import OpenAiIngress` ✓
+  - `from ray.serve.llm.request_router import PrefixCacheAffinityRouter` ✓
+- Old imports show deprecation warnings but still function:
+  - `from ray.serve.llm import LLMRouter` → warns but works
+  - `from ray.serve.llm import LLMServer` → warns but works
+- `@PublicAPI(stability=""alpha"")` decorators are on all newly exposed classes
+- Docstrings are present and helpful - especially for `PDServer` since it's newly public
+- The `build_pd_openai_app` helper is exported and works from `ray.serve.llm`
+- Existing tests pass - no regressions
+- New unit test in `test_llm_imports.py` validates the import structure
+- Documentation updated - `serving-llms.rst` reflects new class names"
 ####
 
 Now next, we need to frame 3 paragraphs of prompts namely 1st turn, 2nd turn, 3rd turn in such a way keeping our ultimate final goal needed to be achieved in this PR work which a tool named claude-hfi will perform:
 
 They should somewhat look like this:
 ####
-✅ First Prompt
+Paragraph 1
+Update the public api structure of the ray.serve.llm module to make it easier to both understand and maintain while still being backward compatible. Namespace this by grouping deployment-related classes, ingress handling, and request routing into separate modules. Here, we expose LLMServer and the newly publicized PDServer from a deployment module into the public api alpha. Now we need to also expose LLMRouter, but we've renamed this class to OpenAiIngress and moved it into a newly created ingress module in order to accommodate OpenAI-compatible ingress handling. Along with this, we now expose PrefixCacheAffinityRouter from a request routing module into the public api alpha. Here, we've made sure to utilize the @PublicAPI alpha api to expose each of these newly added api methods while clearly explaining our intention in each docstring.
 
-The Gaphor property editor needs to be updated to correctly display the properties of the UML Dependency and Classifier. A property page needs to be added for the model element properties of the 'Dependency' model element. The properties page needs to correctly display the 'Client' and 'Supplier' above the 'Dependency' type in a normal font using fully qualified names. The existing 'Dependency' diagram item properties page needs to be used to access the properties that are applicable to each item. Two distinct property pages are needed to access properties applicable to the model and the individual item, and they need to be accessible without encountering an error.
+Paragraph 2
+Update the way in which the ray.serve.llm package initializes to continue to function in a backwards compatible way with old imports of LLMRouter and LLMServer, while deprecating these and giving users information about the new paths. Look to past deprecation tooling in the Ray repository to utilize this. Update the internal imports to not include circular imports and to maintain any existing types and auto-complete documentation. Update the public documentation and configuration files to reflect that the new paths should be used over the old paths. Export the build_pd_openai_app function from the top level.
 
-Modify the Classifier editor to make the missing UML property isFinalSpecialization visible as a toggle button with full transactional support. Refactor GTK code only as necessary to support the new property pages with minimal changes. Include new tests verifying the added behavior with all existing tests passing.
-
-Make sure that selecting a dependency correctly shows the Client and Supplier fields and that the isFinalSpecialization toggle works correctly. The final result should be production-ready and meet the UML spec.
-
-✅ Second Prompt (Refinement & Structural Correctness)
-
-Ensure the Dependency property editor cleanly separates model-level properties from diagram item–specific properties. The model-level Dependency property page should work when the Dependency is selected from the model tree and must not reference any diagram-only attributes. The existing diagram item property page should continue to handle only item-specific properties without duplication. Verify that switching between selecting a Dependency in the tree and selecting a Dependency item on a diagram does not raise errors and consistently displays the correct property page in each case. Review naming, placement, and ordering of fields so that the Source (Client) and Target (Supplier) information is presented clearly and consistently with other relationship property pages in Gaphor.
-
-✅ Third Prompt (Completion, Edge Cases & Test Assurance)
-
-Finalize the implementation by validating edge cases and ensuring full test coverage. Confirm that Dependencies created via the API, diagram interactions, or model tree selection all correctly display Client and Supplier values in the Property Editor. Verify that the isFinalSpecialization toggle updates the underlying model reliably and persists correctly across selections and reloads. Add or update unit tests to cover these scenarios, and ensure that all existing tests continue to pass without modification. The final changes should be minimal, production-ready, free of regressions, and fully aligned with the UML specification and existing Gaphor property page architecture.#### 
+Paragraph 3
+Before finalizing, we need to confirm the accuracy and production readiness of these changes. Please make sure that there are existing unit tests covering these new public-API functionalities, including PDServer and PrefixCacheAffinityRouter. Also, make sure that all existing unit tests are successful without any issues. As part of finalizing the changes, only a minimal number of changes are required to be applied to introduce PDServer and PrefixCacheAffinityRouter as part of public-API Alpha without any over-engineering changes applied in these changes. As a part of finally fixing these changes, the README.md file needs to be modified with a very small description of changes impacting public-API and enhancements in terms of module structure to help users quickly understand changes applied.
+#### 
 
 ```
 
