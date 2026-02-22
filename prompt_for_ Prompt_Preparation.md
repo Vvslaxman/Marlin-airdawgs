@@ -45,110 +45,427 @@ Full Context:
 
 Now i have already completed step 1 and step 2 for you, you/we need to do step-3 with the context i will provide that is present inside github PR conversation. 
 ####
-Use monkeypatch.setenv when mocking environment variables
-
-harupy
-commented
-on Jun 29, 2023
-Related Issues/PRs
-#xxx
-What changes are proposed in this pull request?
-Use monkeypatch.setenv when mocking environment variables.
-
-How is this patch tested?
- Existing unit/integration tests
- New unit/integration tests
- Manual tests (describe details, including test results, below)
-Does this PR change the documentation?
- No. You can skip the rest of this section.
- Yes. Make sure the changed pages / sections render correctly in the documentation preview.
-Release Notes
-Is this a user-facing change?
- No. You can skip the rest of this section.
- Yes. Give a description of this change to be included in the release notes for MLflow users.
-(Details in 1-2 sentences. You can just refer to another PR with a description if this PR is part of a larger change.)
-
-What component(s), interfaces, languages, and integrations does this PR affect?
-Components
-
- area/artifacts: Artifact stores and artifact logging
- area/build: Build and test infrastructure for MLflow
- area/docs: MLflow documentation pages
- area/examples: Example code
- area/model-registry: Model Registry service, APIs, and the fluent client calls for Model Registry
- area/models: MLmodel format, model serialization/deserialization, flavors
- area/recipes: Recipes, Recipe APIs, Recipe configs, Recipe Templates
- area/projects: MLproject format, project running backends
- area/scoring: MLflow Model server, model deployment tools, Spark UDFs
- area/server-infra: MLflow Tracking server backend
- area/tracking: Tracking Service, tracking client APIs, autologging
-Interface
-
- area/uiux: Front-end, user experience, plotting, JavaScript, JavaScript dev server
- area/docker: Docker use across MLflow's components, such as MLflow Projects and MLflow Models
- area/sqlalchemy: Use of SQLAlchemy in the Tracking Service or Model Registry
- area/windows: Windows support
-Language
-
- language/r: R APIs and clients
- language/java: Java APIs and clients
- language/new: Proposals for new client languages
-Integrations
-
- integrations/azure: Azure and Azure ML integrations
- integrations/sagemaker: SageMaker integrations
- integrations/databricks: Databricks integrations
-
-How should the PR be classified in the release notes? Choose one:
- rn/breaking-change - The PR will be mentioned in the "Breaking Changes" section
- rn/none - No description will be included. The PR will be mentioned only by the PR number in the "Small Bugfixes and Documentation Updates" section
- rn/feature - A new user-facing feature worth mentioning in the release notes
- rn/bug-fix - A user-facing bug fix worth mentioning in the release notes
- rn/documentation - A user-facing documentation change worth mentioning in the release notes
-@harupy
-Use monkeypatch.setenv when mocking environment variables 
-4785778
-@harupy harupy requested review from a team, BenWilson2, WeichenXu123, dbczumar and serena-ruan 3 years ago
-@github-actions github-actions bot added the rn/none label on Jun 29, 2023
-@mlflow-automation
+Allow BcolzMinuteBarWriter to append to most recent day
+#1198
+Merged
+StewartDouglas
+merged 1 commit into
+master
+from
+modify-minutes-writer
+on May 14, 2016
++102
+-14
+Lines changed: 102 additions & 14 deletions
+Conversation12 (12)
+Commits1 (1)
+Checks0 (0)
+Files changed2 (2)
+Merged
+Allow BcolzMinuteBarWriter to append to most recent day#1198
+StewartDouglas
+merged 1 commit into
+master
+from
+modify-minutes-writer
+Conversation
+@StewartDouglas
 Contributor
-mlflow-automation
+StewartDouglas
 commented
-on Jun 29, 2023
-Documentation preview for 4785778 will be available here when this CircleCI job completes successfully.
+on May 12, 2016
+Minutely data can now be appended to bcolz files even when
+minutes in the same day have already been written. For example,
+previously attempting to write data for the minute 2016-05-11 16:30
+would raise an exception if any OHLCV data for 2016-05-11 had been
+written to the same file.
 
-More info
-Ignore this comment if this PR does not change the documentation.
-It takes a few minutes for the preview to be available.
-The preview is updated when a new commit is pushed to this PR.
-This comment was created by https://github.com/mlflow/mlflow/actions/runs/5409832536.
-WeichenXu123
-WeichenXu123 approved these changes on Jun 30, 2023
-Collaborator
-WeichenXu123
-left a comment
-LGTM
+Trying to overwrite existing minutes still raises a
+BcolzMinuteOverlappingData exception.
 
-@harupy harupy merged commit 382d922 into mlflow:master on Jun 30, 2023
-@harupy harupy deleted the replace-patch-os-environ-5 branch 3 years ago
-dan-licht pushed a commit to dan-licht/mlflow that referenced this pull request on Jun 30, 2023
-@harupy
-@dan-licht
-Use monkeypatch.setenv when mocking environment variables (mlflow#8893) …
-1849a5e
-BenWilson2 pushed a commit to BenWilson2/mlflow that referenced this pull request on Jul 6, 2023
-@harupy
-@BenWilson2
-Use monkeypatch.setenv when mocking environment variables (mlflow#8893) …
-09996eb
-BenWilson2 pushed a commit to BenWilson2/mlflow that referenced this pull request on Jul 7, 2023
-@harupy
-@BenWilson2
-Use monkeypatch.setenv when mocking environment variables (mlflow#8893) …
-4556dae
-dan-licht added a commit to dan-licht/mlflow that referenced this pull request on Dec 1, 2023
-@dan-licht
-add test case for Tuning Trials tab …####
+Note that previously all sids' bcolz files ended at the same time.
+This is no longer necessarily the case. The last record in each
+sid's bcolz file now corresponds to the latest minute for which
+OHLCV data is provided to the writer.
+
+@coveralls
+coveralls
+commented
+on May 12, 2016
+• 
+Coverage Status
+
+Coverage decreased (-0.01%) to 81.461% when pulling 9eb8f44 on modify-minutes-writer into 47da155 on master.
+
+@StewartDouglas StewartDouglas assigned ehebert on May 12, 2016
+ehebert
+ehebert reviewed on May 12, 2016
+zipline/data/minute_bars.py
+Outdated
+        assert new_last_date == date, "new_last_date={0} != date={1}".format(
+            new_last_date, date)
+
+    def set_bcolz_attrs(self, sid, **kwargs):
+Contributor
+@ehebert
+ehebert
+on May 12, 2016
+This is in support of adding the tick size for each future?
+
+I would recommend taking bcolz out of the name, instead something like set_sid_attrs or set_sid_metadata so that the public writer interface is not tied to implementation.
+
+We should add a test covering this method.
+
+Contributor
+Author
+@StewartDouglas
+StewartDouglas
+on May 12, 2016
+It's in support of an adjustment factor, so that we can store a greater range of floats without truncating any decimal places.
+
+Agreed on the renaming and test coverage.
+
+@Vvslaxman	Reply...
+@ehebert
+Contributor
+ehebert
+commented
+on May 12, 2016
+We should add some tests in test_minute_bar_writer exercising the new behavior, e.g. a test that writes up to some value before the market close, and then successfully writes another value in that same day.
+
+@coveralls
+coveralls
+commented
+on May 13, 2016
+• 
+Coverage Status
+
+Coverage decreased (-0.008%) to 81.463% when pulling b1c9653 on modify-minutes-writer into 47da155 on master.
+
+ehebert
+ehebert reviewed on May 13, 2016
+zipline/data/minute_bars.py
+        assert new_last_date == date, "new_last_date={0} != date={1}".format(
+            new_last_date, date)
+
+    def set_sid_attrs(self, sid, **kwargs):
+Contributor
+@ehebert
+ehebert
+on May 13, 2016
+If this is only being used for the sid adjustment factor, should we call this set_sid_adjustment_factor?
+
+Contributor
+Author
+@StewartDouglas
+StewartDouglas
+on May 13, 2016
+No, the plan is to use this for some other attributes associated with the sid.
+
+@Vvslaxman	Reply...
+@coveralls
+coveralls
+commented
+on May 13, 2016
+• 
+Coverage Status
+
+Coverage decreased (-0.01%) to 81.46% when pulling 1829981 on modify-minutes-writer into 47da155 on master.
+
+@StewartDouglas StewartDouglas force-pushed the modify-minutes-writer branch from 1829981 to 909fe40 
+10 years ago
+@StewartDouglas
+ENH: Allow BcolzMinuteBarWriter to append to most recent day 
+8217cdb
+@StewartDouglas StewartDouglas force-pushed the modify-minutes-writer branch from 909fe40 to 8217cdb 
+10 years ago
+@coveralls
+coveralls
+commented
+on May 14, 2016
+• 
+Coverage Status
+
+Coverage increased (+0.009%) to 81.506% when pulling 8217cdb on modify-minutes-writer into 784d5f4 on master.
+
+@coveralls
+coveralls
+commented
+on May 14, 2016
+• 
+Coverage Status
+
+Coverage increased (+0.009%) to 81.506% when pulling 8217cdb on modify-minutes-writer into 784d5f4 on master.
+
+@StewartDouglas StewartDouglas merged commit b0d688a into master on May 14, 2016
+@StewartDouglas StewartDouglas deleted the modify-minutes-writer branch 10 years ago
+Merge info
+Pull request successfully merged and closed
+You're all set — the branch has been merged.
+
+Allow BcolzMinuteBarWriter to append to most recent day
+#1198
+Merged
+StewartDouglas
+merged 1 commit into
+master
+from
+modify-minutes-writer
+on May 14, 2016
++102
+-14
+Lines changed: 102 additions & 14 deletions
+Conversation12 (12)
+Commits1 (1)
+Checks0 (0)
+Files changed2 (2)
+Pull Request Toolbar
+Merged
+Allow BcolzMinuteBarWriter to append to most recent day
+#1198
+StewartDouglas
+merged 1 commit into
+master
+from
+modify-minutes-writer
+0 / 2 viewed
+Filter files…
+File tree
+tests/data
+test_minute_bars.py
+zipline/data
+minute_bars.py
+2
+‎tests/data/test_minute_bars.py‎
++61
+Lines changed: 61 additions & 0 deletions
+Original file line number	Original file line	Diff line number	Diff line change
+        with self.assertRaises(BcolzMinuteOverlappingData):
+        with self.assertRaises(BcolzMinuteOverlappingData):
+            self.writer.write_sid(sid, data)
+            self.writer.write_sid(sid, data)
+
+
+    def test_append_to_same_day(self):
+        """
+        Test writing data with the same date as existing data in our file.
+        """
+        sid = 1
+        first_minute = self.market_opens[TEST_CALENDAR_START]
+        data = DataFrame(
+            data={
+                'open': [10.0],
+                'high': [20.0],
+                'low': [30.0],
+                'close': [40.0],
+                'volume': [50.0]
+            },
+            index=[first_minute])
+        self.writer.write_sid(sid, data)
+        # Write data in the same day as the previous minute
+        second_minute = first_minute + Timedelta(minutes=1)
+        new_data = DataFrame(
+            data={
+                'open': [5.0],
+                'high': [10.0],
+                'low': [3.0],
+                'close': [7.0],
+                'volume': [10.0]
+            },
+            index=[second_minute])
+        self.writer.write_sid(sid, new_data)
+        open_price = self.reader.get_value(sid, second_minute, 'open')
+        self.assertEquals(5.0, open_price)
+        high_price = self.reader.get_value(sid, second_minute, 'high')
+        self.assertEquals(10.0, high_price)
+        low_price = self.reader.get_value(sid, second_minute, 'low')
+        self.assertEquals(3.0, low_price)
+        close_price = self.reader.get_value(sid, second_minute, 'close')
+        self.assertEquals(7.0, close_price)
+        volume_price = self.reader.get_value(sid, second_minute, 'volume')
+        self.assertEquals(10.0, volume_price)
+    def test_write_multiple_sids(self):
+    def test_write_multiple_sids(self):
+        """
+        """
+        Test writing multiple sids.
+        Test writing multiple sids.
+                Timestamp('2015-11-30 21:01:00', tz='UTC'),
+                Timestamp('2015-11-30 21:01:00', tz='UTC'),
+                'open'),
+                'open'),
+            600)
+            600)
+    def test_set_sid_attrs(self):
+        """Confirm that we can set the attributes of a sid's file correctly.
+        """
+        sid = 1
+        start_day = Timestamp('2015-11-27', tz='UTC')
+        end_day = Timestamp('2015-06-02', tz='UTC')
+        attrs = {
+            'start_day': start_day.value / int(1e9),
+            'end_day': end_day.value / int(1e9),
+            'factor': 100,
+        }
+        # Write the attributes
+        self.writer.set_sid_attrs(sid, **attrs)
+        # Read the attributes
+        for k, v in attrs.items():
+            self.assertEqual(self.reader.get_sid_attr(sid, k), v)
+‎zipline/data/minute_bars.py‎
++41
+-14
+Lines changed: 41 additions & 14 deletions
+Original file line number	Original file line	Diff line number	Diff line change
+        assert new_last_date == date, "new_last_date={0} != date={1}".format(
+        assert new_last_date == date, "new_last_date={0} != date={1}".format(
+            new_last_date, date)
+            new_last_date, date)
+
+
+    def set_sid_attrs(self, sid, **kwargs):
+Comment on line R444
+ehebert commented on May 13, 2016
+@ehebert
+ehebert
+on May 13, 2016
+Contributor
+If this is only being used for the sid adjustment factor, should we call this set_sid_adjustment_factor?
+
+StewartDouglas replied on May 13, 2016
+@StewartDouglas
+StewartDouglas
+on May 13, 2016
+Contributor
+Author
+No, the plan is to use this for some other attributes associated with the sid.
+
+Write a reply
+        """Write all the supplied kwargs as attributes of the sid's file.
+        """
+        table = self._ensure_ctable(sid)
+        for k, v in kwargs.items():
+            table.attrs[k] = v
+    def write(self, data, show_progress=False):
+    def write(self, data, show_progress=False):
+        """Write a stream of minute data.
+        """Write a stream of minute data.
+        tds = self._trading_days
+        tds = self._trading_days
+        input_first_day = pd.Timestamp(dts[0].astype('datetime64[D]'),
+        input_first_day = pd.Timestamp(dts[0].astype('datetime64[D]'),
+                                       tz='UTC')
+                                       tz='UTC')
+        input_last_day = pd.Timestamp(dts[-1].astype('datetime64[D]'),
+                                      tz='UTC')
+
+
+        last_date = self.last_date_in_output_for_sid(sid)
+        last_date = self.last_date_in_output_for_sid(sid)
+
+
+        if last_date >= input_first_day:
+            raise BcolzMinuteOverlappingData(dedent("""
+            Data with last_date={0} already includes input start={1} for
+            sid={2}""".strip()).format(last_date, input_first_day, sid))
+        day_before_input = input_first_day - tds.freq
+        day_before_input = input_first_day - tds.freq
+
+
+        self.pad(sid, day_before_input)
+        self.pad(sid, day_before_input)
+        table = self._ensure_ctable(sid)
+        table = self._ensure_ctable(sid)
+
+
+        days_to_write = tds[tds.slice_indexer(start=input_first_day,
+        # Get the number of minutes already recorded in this sid's ctable
+                                              end=input_last_day)]
+        num_rec_mins = table.size
+        minutes_count = len(days_to_write) * self._minutes_per_day
+
+
+        all_minutes = self._minute_index
+        all_minutes = self._minute_index
+        indexer = all_minutes.slice_indexer(start=days_to_write[0])
+        # Get the latest minute we wish to write to the ctable
+        all_minutes_in_window = all_minutes[indexer]
+        last_minute_to_write = dts[-1]
+        # In the event that we've already written some minutely data to the
+        # ctable, guard against overwritting that data.
+        if num_rec_mins > 0:
+            last_recorded_minute = np.datetime64(all_minutes[num_rec_mins - 1])
+            if last_minute_to_write <= last_recorded_minute:
+                raise BcolzMinuteOverlappingData(dedent("""
+                Data with last_date={0} already includes input start={1} for
+                sid={2}""".strip()).format(last_date, input_first_day, sid))
+        latest_min_count = all_minutes.get_loc(last_minute_to_write)
+        # Get all the minutes we wish to write (all market minutes after the
+        # latest currently written, up to and including last_minute_to_write)
+        all_minutes_in_window = all_minutes[num_rec_mins:latest_min_count + 1]
+        minutes_count = all_minutes_in_window.size
+
+
+        open_col = np.zeros(minutes_count, dtype=np.uint32)
+        open_col = np.zeros(minutes_count, dtype=np.uint32)
+        high_col = np.zeros(minutes_count, dtype=np.uint32)
+        high_col = np.zeros(minutes_count, dtype=np.uint32)
+
+
+        return carray
+        return carray
+
+
+    def get_sid_attr(self, sid, name):
+        sid_subdir = _sid_subdir_path(sid)
+        sid_path = os.path.join(self._rootdir, sid_subdir)
+        attrs = bcolz.attrs.attrs(sid_path, 'r')
+        try:
+            return attrs[name]
+        except KeyError:
+            return None
+    def get_value(self, sid, dt, field):
+    def get_value(self, sid, dt, field):
+        """
+        """
+        Retrieve the pricing info for the given sid, dt, and field.
+        Retrieve the pricing info for the given sid, dt, and field.
+            self._last_get_value_dt_value = dt.value
+            self._last_get_value_dt_value = dt.value
+            self._last_get_value_dt_position = minute_pos
+            self._last_get_value_dt_position = minute_pos
+
+
+        value = self._open_minute_file(field, sid)[minute_pos]
+        try:
+            value = self._open_minute_file(field, sid)[minute_pos]
+        except IndexError:
+            value = 0
+        if value == 0:
+        if value == 0:
+            if field == 'volume':
+            if field == 'volume':
+                return 0
+                return 0
+
+####
+About zipline repo:
+Zipline
+Gitter pypi version status pypi pyversion status travis status appveyor status Coverage Status
+
+Zipline is a Pythonic algorithmic trading library. It is an event-driven system for backtesting. Zipline is currently used in production as the backtesting and live-trading engine powering Quantopian -- a free, community-centered, hosted platform for building and executing trading strategies. Quantopian also offers a fully managed service for professionals that includes Zipline, Alphalens, Pyfolio, FactSet data, and more.
+
+Join our Community!
+Documentation
+Want to Contribute? See our Development Guidelines
+Features
+Ease of Use: Zipline tries to get out of your way so that you can focus on algorithm development. See below for a code example.
+"Batteries Included": many common statistics like moving average and linear regression can be readily accessed from within a user-written algorithm.
+PyData Integration: Input of historical data and output of performance statistics are based on Pandas DataFrames to integrate nicely into the existing PyData ecosystem.
+Statistics and Machine Learning Libraries: You can use libraries like matplotlib, scipy, statsmodels, and sklearn to support development, analysis, and visualization of state-of-the-art trading systems.
+Installation
+####
+
 
 With that content we will have to create below required points in simple human written paragraphs
 1. Initial Prompt
@@ -194,7 +511,7 @@ Ensure the Dependency property editor cleanly separates model-level properties f
 
 ✅ Third Prompt (Completion, Edge Cases & Test Assurance)
 
-Finalize the implementation by validating edge cases and ensuring full test coverage. Confirm that Dependencies created via the API, diagram interactions, or model tree selection all correctly display Client and Supplier values in the Property Editor. Verify that the isFinalSpecialization toggle updates the underlying model reliably and persists correctly across selections and reloads. Add or update unit tests to cover these scenarios, and ensure that all existing tests continue to pass without modification. The final changes should be minimal, production-ready, free of regressions, and fully aligned with the UML specification and existing Gaphor property page architecture.####
+Finalize the implementation by validating edge cases and ensuring full test coverage. Confirm that Dependencies created via the API, diagram interactions, or model tree selection all correctly display Client and Supplier values in the Property Editor. Verify that the isFinalSpecialization toggle updates the underlying model reliably and persists correctly across selections and reloads. Add or update unit tests to cover these scenarios, and ensure that all existing tests continue to pass without modification. The final changes should be minimal, production-ready, free of regressions, and fully aligned with the UML specification and existing Gaphor property page architecture.#### 
 
 ```
 
