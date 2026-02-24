@@ -44,428 +44,393 @@ The goal of this step is to remove ambiguity and define a prompt that clearly de
 Full Context:
 
 Now i have already completed step 1 and step 2 for you, you/we need to do step-3 with the context i will provide that is present inside github PR conversation. 
+
 ####
-Allow BcolzMinuteBarWriter to append to most recent day
-#1198
+Add integration test coverage for committee financial summary
+#4049
 Merged
-StewartDouglas
+fec-jli
 merged 1 commit into
-master
+develop
 from
-modify-minutes-writer
-on May 14, 2016
-+102
--14
-Lines changed: 102 additions & 14 deletions
-Conversation12 (12)
+feature/4027-add-test
+on Oct 31, 2019
++181
+Lines changed: 181 additions & 0 deletions
+Conversation3 (3)
 Commits1 (1)
 Checks0 (0)
-Files changed2 (2)
+Files changed1 (1)
 Merged
-Allow BcolzMinuteBarWriter to append to most recent day#1198
-StewartDouglas
+Add integration test coverage for committee financial summary#4049
+fec-jli
 merged 1 commit into
-master
+develop
 from
-modify-minutes-writer
+feature/4027-add-test
 Conversation
-@StewartDouglas
+@hcaofec
 Contributor
-StewartDouglas
+hcaofec
 commented
-on May 12, 2016
-Minutely data can now be appended to bcolz files even when
-minutes in the same day have already been written. For example,
-previously attempting to write data for the minute 2016-05-11 16:30
-would raise an exception if any OHLCV data for 2016-05-11 had been
-written to the same file.
-
-Trying to overwrite existing minutes still raises a
-BcolzMinuteOverlappingData exception.
-
-Note that previously all sids' bcolz files ended at the same time.
-This is no longer necessarily the case. The last record in each
-sid's bcolz file now corresponds to the latest minute for which
-OHLCV data is provided to the writer.
-
-@coveralls
-coveralls
-commented
-on May 12, 2016
+on Oct 30, 2019
 • 
-Coverage Status
-
-Coverage decreased (-0.01%) to 81.461% when pulling 9eb8f44 on modify-minutes-writer into 47da155 on master.
-
-@StewartDouglas StewartDouglas assigned ehebert on May 12, 2016
-ehebert
-ehebert reviewed on May 12, 2016
-zipline/data/minute_bars.py
-Outdated
-        assert new_last_date == date, "new_last_date={0} != date={1}".format(
-            new_last_date, date)
-
-    def set_bcolz_attrs(self, sid, **kwargs):
+Summary (required)
+Resolves #4027 [Add test coverage for committee financial summary #4027
+Closed
+Parent:
+Sub-epic: Back-end technical debt
+@jason-upchurch
+Description
+jason-upchurch
+opened on Oct 17, 2019
 Contributor
-@ehebert
-ehebert
-on May 12, 2016
-This is in support of adding the tick size for each future?
+Summary
+We need to expand test coverage to catch issues related to #4016 [Financial summary missing for committee #4016
+Closed
+#4039
+Closed
+Financial summary missing for committee
+#4016
+#4039
+@lbeaufort
+Description
+lbeaufort
+opened on Oct 16, 2019 · edited by fec-jli
+Member
+A presidential candidate has two committees. The PCC is filing on Form 3P, but the other authorized committee is filing on Form 3. Both committees are committee type "P." The PCC's profile page is ok, https://www.fec.gov/data/committee/C00699090/?cycle=2020. The other authorized committee profile page incorrectly says we don't have data for the committee, https://www.fec.gov/data/committee/C00501197/?cycle=2020.
 
-I would recommend taking bcolz out of the name, instead something like set_sid_attrs or set_sid_metadata so that the public writer interface is not tied to implementation.
+Ticket to add test coverage for this scenario and base scenarios: Add test coverage for committee financial summary #4027
+Completion Criteria
 
-We should add a test covering this method.
+summary should appear for this committee
 
+existing committee profile pages should still calculate properly
+Activity
+
+lbeaufort
+added this to the Sprint 10.4 milestone on Oct 16, 2019
+
+lbeaufort
+added 
+Needs refinement
+ 
+Bug
+ 
+Data Issue
+ on Oct 16, 2019
+
+bmathesonFEC
+removed 
+Needs refinement
+ on Oct 17, 2019
+
+jason-upchurch
+mentioned this on Oct 17, 2019
+Add test coverage for committee financial summary #4027
+
+fec-jli
+assigned 
+fec-jli
+and
+hcaofec
+on Oct 18, 2019
+
+fec-jli
+mentioned this in 2 pull requests on Oct 25, 2019
+Add cycles_has_financial /activity in committee history and form_category in filings. #4039
+Fix committee summary page with wrong form or cmte_type. fec-cms#3299
+
+fecjjeng
+mentioned this on Oct 29, 2019
+Add columns to committee_history_mv and filings_all_mv to help filtering to display cycles with either financial reports or with activity. #4043
+
+jason-upchurch
+closed this as completedin #4039on Oct 31, 2019
+
+fec-jli
+mentioned this on Oct 31, 2019
+Financial summary missing for committee fec-cms#3311]
+
+A presidential candidate has two committees. The PCC is filing on Form 3P, but the other authorized committee is filing on Form 3. Both committees are committee type "P." The PCC's profile page is ok, https://www.fec.gov/data/committee/C00699090/?cycle=2020. The other authorized committee profile page incorrectly says we don't have data for the committee, https://www.fec.gov/data/committee/C00501197/?cycle=2020.
+
+First pass at completion criteria
+
+test fails for pre-bug fix above
+
+test passes for correct implementation of bug fix]
+
+Integration tests are added for committee and candidate financial summary.
+
+For committee financial summary, testing scenario when presidential committee files F3x besides F3P
+
+For candidate financial summary, testing scenario when candidate's other authorized committee files on F3
+
+How to test the changes locally
+-Download feature branch,
+-Run pytest
+
+@hcaofec hcaofec requested review from fec-jli and jason-upchurch 7 years ago
+jason-upchurch
+jason-upchurch approved these changes on Oct 30, 2019
 Contributor
-Author
-@StewartDouglas
-StewartDouglas
-on May 12, 2016
-It's in support of an adjustment factor, so that we can store a greater range of floats without truncating any decimal places.
+jason-upchurch
+left a comment
+Looks great @hcaofec! Thank you! 👍
 
-Agreed on the renaming and test coverage.
+@hcaofec
+Add integration test case for candidate and committee totals
+2c6111b
+@hcaofec hcaofec force-pushed the feature/4027-add-test branch from d81bcc7 to 2c6111b 
+7 years ago
+@codecov-io
+codecov-io
+commented
+on Oct 31, 2019
+Codecov Report
+Merging #4049 into develop will decrease coverage by 0.74%.
+The diff coverage is n/a.
 
-@Vvslaxman	Reply...
-@ehebert
+Impacted file tree graph
+
+@@             Coverage Diff             @@
+##           develop    #4049      +/-   ##
+===========================================
+- Coverage    89.72%   88.98%   -0.75%     
+===========================================
+  Files           75       77       +2     
+  Lines         6802     6879      +77     
+===========================================
++ Hits          6103     6121      +18     
+- Misses         699      758      +59
+Impacted Files	Coverage Δ	
+webservices/partition/utils.py	0% <0%> (ø)	
+webservices/partition/base.py	0% <0%> (ø)	
+webservices/rest.py	93.37% <0%> (+0.6%)	⬆️
+webservices/resources/totals.py	72.03% <0%> (+13.55%)	⬆️
+Continue to review full report at Codecov.
+
+Legend - Click here to learn more
+Δ = absolute <relative> (impact), ø = not affected, ? = missing data
+Powered by Codecov. Last update 1404592...2c6111b. Read the comment docs.
+
+fec-jli
+fec-jli approved these changes on Oct 31, 2019
 Contributor
-ehebert
-commented
-on May 12, 2016
-We should add some tests in test_minute_bar_writer exercising the new behavior, e.g. a test that writes up to some value before the market close, and then successfully writes another value in that same day.
+fec-jli
+left a comment
+great job.
 
-@coveralls
-coveralls
-commented
-on May 13, 2016
-• 
-Coverage Status
-
-Coverage decreased (-0.008%) to 81.463% when pulling b1c9653 on modify-minutes-writer into 47da155 on master.
-
-ehebert
-ehebert reviewed on May 13, 2016
-zipline/data/minute_bars.py
-        assert new_last_date == date, "new_last_date={0} != date={1}".format(
-            new_last_date, date)
-
-    def set_sid_attrs(self, sid, **kwargs):
-Contributor
-@ehebert
-ehebert
-on May 13, 2016
-If this is only being used for the sid adjustment factor, should we call this set_sid_adjustment_factor?
-
-Contributor
-Author
-@StewartDouglas
-StewartDouglas
-on May 13, 2016
-No, the plan is to use this for some other attributes associated with the sid.
-
-@Vvslaxman	Reply...
-@coveralls
-coveralls
-commented
-on May 13, 2016
-• 
-Coverage Status
-
-Coverage decreased (-0.01%) to 81.46% when pulling 1829981 on modify-minutes-writer into 47da155 on master.
-
-@StewartDouglas StewartDouglas force-pushed the modify-minutes-writer branch from 1829981 to 909fe40 
-10 years ago
-@StewartDouglas
-ENH: Allow BcolzMinuteBarWriter to append to most recent day 
-8217cdb
-@StewartDouglas StewartDouglas force-pushed the modify-minutes-writer branch from 909fe40 to 8217cdb 
-10 years ago
-@coveralls
-coveralls
-commented
-on May 14, 2016
-• 
-Coverage Status
-
-Coverage increased (+0.009%) to 81.506% when pulling 8217cdb on modify-minutes-writer into 784d5f4 on master.
-
-@coveralls
-coveralls
-commented
-on May 14, 2016
-• 
-Coverage Status
-
-Coverage increased (+0.009%) to 81.506% when pulling 8217cdb on modify-minutes-writer into 784d5f4 on master.
-
-@StewartDouglas StewartDouglas merged commit b0d688a into master on May 14, 2016
-@StewartDouglas StewartDouglas deleted the modify-minutes-writer branch 10 years ago
+@fec-jli fec-jli merged commit c20e5e9 into develop on Oct 31, 2019
+@hcaofec hcaofec changed the title Add test coverage for committee financial summary Add integration test coverage for committee financial summary on Oct 31, 2019
+@hcaofec hcaofec deleted the feature/4027-add-test branch 7 years ago
 Merge info
 Pull request successfully merged and closed
 You're all set — the branch has been merged.
 
-Allow BcolzMinuteBarWriter to append to most recent day
-#1198
+
+file:
+Add integration test coverage for committee financial summary
+#4049
 Merged
-StewartDouglas
+fec-jli
 merged 1 commit into
-master
+develop
 from
-modify-minutes-writer
-on May 14, 2016
-+102
--14
-Lines changed: 102 additions & 14 deletions
-Conversation12 (12)
+feature/4027-add-test
+on Oct 31, 2019
++181
+Lines changed: 181 additions & 0 deletions
+Conversation3 (3)
 Commits1 (1)
 Checks0 (0)
-Files changed2 (2)
+Files changed1 (1)
 Pull Request Toolbar
 Merged
-Allow BcolzMinuteBarWriter to append to most recent day
-#1198
-StewartDouglas
+Add integration test coverage for committee financial summary
+#4049
+fec-jli
 merged 1 commit into
-master
+develop
 from
-modify-minutes-writer
-0 / 2 viewed
+feature/4027-add-test
+0 / 1 viewed
 Filter files…
 File tree
-tests/data
-test_minute_bars.py
-zipline/data
-minute_bars.py
-2
-‎tests/data/test_minute_bars.py‎
-+61
-Lines changed: 61 additions & 0 deletions
+tests/integration
+test_totals.py
+‎tests/integration/test_totals.py‎
++181
+Lines changed: 181 additions & 0 deletions
 Original file line number	Original file line	Diff line number	Diff line change
-        with self.assertRaises(BcolzMinuteOverlappingData):
-        with self.assertRaises(BcolzMinuteOverlappingData):
-            self.writer.write_sid(sid, data)
-            self.writer.write_sid(sid, data)
-
-
-    def test_append_to_same_day(self):
-        """
-        Test writing data with the same date as existing data in our file.
-        """
-        sid = 1
-        first_minute = self.market_opens[TEST_CALENDAR_START]
-        data = DataFrame(
-            data={
-                'open': [10.0],
-                'high': [20.0],
-                'low': [30.0],
-                'close': [40.0],
-                'volume': [50.0]
+import codecs
+import pytest
+import json
+import manage
+from tests import common
+from webservices import rest, __API_VERSION__
+from webservices.rest import db
+from webservices.resources.totals import CandidateTotalsView, TotalsCommitteeView
+@pytest.mark.usefixtures("migrate_db")
+class TotalTestCase(common.BaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.longMessage = True
+        self.maxDiff = None
+        self.request_context = rest.app.test_request_context()
+        self.request_context.push()
+        self.connection = db.engine.connect()
+    def _response(self, qry):
+        response = self.app.get(qry)
+        self.assertEquals(response.status_code, 200)
+        result = json.loads(codecs.decode(response.data))
+        self.assertNotEqual(result, [], "Empty response!")
+        self.assertEqual(result['api_version'], __API_VERSION__)
+        return result
+    def _results(self, qry):
+        response = self._response(qry)
+        return response['results']
+    def test_cand_and_cmte_totals(self):
+        cmte_valid_fec_yr_data = [
+            {
+                'valid_fec_yr_id': 1,
+                'cmte_id': 'C001',
+                'fec_election_yr': 2020,
+                'cmte_tp': 'P',
+                'cmte_dsgn': 'P',
+                'date_entered': 'now()',
             },
-            index=[first_minute])
-        self.writer.write_sid(sid, data)
-        # Write data in the same day as the previous minute
-        second_minute = first_minute + Timedelta(minutes=1)
-        new_data = DataFrame(
-            data={
-                'open': [5.0],
-                'high': [10.0],
-                'low': [3.0],
-                'close': [7.0],
-                'volume': [10.0]
+            {
+                'valid_fec_yr_id': 2,
+                'cmte_id': 'C002',
+                'fec_election_yr': 2020,
+                'cmte_tp': 'P',
+                'cmte_dsgn': 'A',
+                'date_entered': 'now()',
             },
-            index=[second_minute])
-        self.writer.write_sid(sid, new_data)
-        open_price = self.reader.get_value(sid, second_minute, 'open')
-        self.assertEquals(5.0, open_price)
-        high_price = self.reader.get_value(sid, second_minute, 'high')
-        self.assertEquals(10.0, high_price)
-        low_price = self.reader.get_value(sid, second_minute, 'low')
-        self.assertEquals(3.0, low_price)
-        close_price = self.reader.get_value(sid, second_minute, 'close')
-        self.assertEquals(7.0, close_price)
-        volume_price = self.reader.get_value(sid, second_minute, 'volume')
-        self.assertEquals(10.0, volume_price)
-    def test_write_multiple_sids(self):
-    def test_write_multiple_sids(self):
-        """
-        """
-        Test writing multiple sids.
-        Test writing multiple sids.
-                Timestamp('2015-11-30 21:01:00', tz='UTC'),
-                Timestamp('2015-11-30 21:01:00', tz='UTC'),
-                'open'),
-                'open'),
-            600)
-            600)
-    def test_set_sid_attrs(self):
-        """Confirm that we can set the attributes of a sid's file correctly.
-        """
-        sid = 1
-        start_day = Timestamp('2015-11-27', tz='UTC')
-        end_day = Timestamp('2015-06-02', tz='UTC')
-        attrs = {
-            'start_day': start_day.value / int(1e9),
-            'end_day': end_day.value / int(1e9),
-            'factor': 100,
+        ]
+        self.create_cmte_valid(cmte_valid_fec_yr_data)
+        cand_cmte_linkage_data = [
+            {
+                'linkage_id': 1,
+                'cand_id': 'P01',
+                'fec_election_yr': 2020,
+                'cand_election_yr': 2020,
+                'cmte_id': 'C001',
+                'cmte_count_cand_yr': 1,
+                'cmte_tp': 'P',
+                'cmte_dsgn': 'P',
+                'linkage_type': 'P',
+                'date_entered': 'now()',
+            },
+            {
+                'linkage_id': 3,
+                'cand_id': 'P01',
+                'fec_election_yr': 2020,
+                'cand_election_yr': 2020,
+                'cmte_id': 'C002',
+                'cmte_count_cand_yr': 1,
+                'cmte_tp': 'P',
+                'cmte_dsgn': 'A',
+                'linkage_type': 'A',
+                'date_entered': 'now()',
+            },
+        ]
+        self.create_cand_cmte_linkage(cand_cmte_linkage_data)
+        filing_f3p_q1 = {
+            'committee_id': 'C001',
+            'report_year': 2019,
+            'file_number': 10001,
+            'ttl_receipts': 100,
+            'ttl_disb': 30,
+            'form_type': 'F3P',
+            'sub_id': 1,
+            'rpt_year': 2019
         }
-        # Write the attributes
-        self.writer.set_sid_attrs(sid, **attrs)
-        # Read the attributes
-        for k, v in attrs.items():
-            self.assertEqual(self.reader.get_sid_attr(sid, k), v)
-‎zipline/data/minute_bars.py‎
-+41
--14
-Lines changed: 41 additions & 14 deletions
-Original file line number	Original file line	Diff line number	Diff line change
-        assert new_last_date == date, "new_last_date={0} != date={1}".format(
-        assert new_last_date == date, "new_last_date={0} != date={1}".format(
-            new_last_date, date)
-            new_last_date, date)
-
-
-    def set_sid_attrs(self, sid, **kwargs):
-Comment on line R444
-ehebert commented on May 13, 2016
-@ehebert
-ehebert
-on May 13, 2016
-Contributor
-If this is only being used for the sid adjustment factor, should we call this set_sid_adjustment_factor?
-
-StewartDouglas replied on May 13, 2016
-@StewartDouglas
-StewartDouglas
-on May 13, 2016
-Contributor
-Author
-No, the plan is to use this for some other attributes associated with the sid.
-
-Write a reply
-        """Write all the supplied kwargs as attributes of the sid's file.
+        filing_f3x_q2 = {
+            'committee_id': 'C001',
+            'report_year': 2019,
+            'file_number': 10002,
+            'ttl_receipts': 200,
+            'ttl_disb': 50,
+            'form_type': 'F3X',
+            'sub_id': 2,
+            'rpt_year': 2019
+        }
+        filing_f3_q1 = {
+            'committee_id': 'C002',
+            'report_year': 2019,
+            'file_number': 10004,
+            'ttl_receipts': 11,
+            'ttl_disb': 5,
+            'form_type': 'F3',
+            'sub_id': 3,
+            'rpt_year': 2019
+        }
+        self.insert_vsum(filing_f3p_q1)
+        self.insert_vsum(filing_f3x_q2)
+        self.insert_vsum(filing_f3_q1)
+        manage.refresh_materialized(concurrent=False)
         """
-        table = self._ensure_ctable(sid)
-        for k, v in kwargs.items():
-            table.attrs[k] = v
-    def write(self, data, show_progress=False):
-    def write(self, data, show_progress=False):
-        """Write a stream of minute data.
-        """Write a stream of minute data.
-        tds = self._trading_days
-        tds = self._trading_days
-        input_first_day = pd.Timestamp(dts[0].astype('datetime64[D]'),
-        input_first_day = pd.Timestamp(dts[0].astype('datetime64[D]'),
-                                       tz='UTC')
-                                       tz='UTC')
-        input_last_day = pd.Timestamp(dts[-1].astype('datetime64[D]'),
-                                      tz='UTC')
-
-
-        last_date = self.last_date_in_output_for_sid(sid)
-        last_date = self.last_date_in_output_for_sid(sid)
-
-
-        if last_date >= input_first_day:
-            raise BcolzMinuteOverlappingData(dedent("""
-            Data with last_date={0} already includes input start={1} for
-            sid={2}""".strip()).format(last_date, input_first_day, sid))
-        day_before_input = input_first_day - tds.freq
-        day_before_input = input_first_day - tds.freq
-
-
-        self.pad(sid, day_before_input)
-        self.pad(sid, day_before_input)
-        table = self._ensure_ctable(sid)
-        table = self._ensure_ctable(sid)
-
-
-        days_to_write = tds[tds.slice_indexer(start=input_first_day,
-        # Get the number of minutes already recorded in this sid's ctable
-                                              end=input_last_day)]
-        num_rec_mins = table.size
-        minutes_count = len(days_to_write) * self._minutes_per_day
-
-
-        all_minutes = self._minute_index
-        all_minutes = self._minute_index
-        indexer = all_minutes.slice_indexer(start=days_to_write[0])
-        # Get the latest minute we wish to write to the ctable
-        all_minutes_in_window = all_minutes[indexer]
-        last_minute_to_write = dts[-1]
-        # In the event that we've already written some minutely data to the
-        # ctable, guard against overwritting that data.
-        if num_rec_mins > 0:
-            last_recorded_minute = np.datetime64(all_minutes[num_rec_mins - 1])
-            if last_minute_to_write <= last_recorded_minute:
-                raise BcolzMinuteOverlappingData(dedent("""
-                Data with last_date={0} already includes input start={1} for
-                sid={2}""".strip()).format(last_date, input_first_day, sid))
-        latest_min_count = all_minutes.get_loc(last_minute_to_write)
-        # Get all the minutes we wish to write (all market minutes after the
-        # latest currently written, up to and including last_minute_to_write)
-        all_minutes_in_window = all_minutes[num_rec_mins:latest_min_count + 1]
-        minutes_count = all_minutes_in_window.size
-
-
-        open_col = np.zeros(minutes_count, dtype=np.uint32)
-        open_col = np.zeros(minutes_count, dtype=np.uint32)
-        high_col = np.zeros(minutes_count, dtype=np.uint32)
-        high_col = np.zeros(minutes_count, dtype=np.uint32)
-
-
-        return carray
-        return carray
-
-
-    def get_sid_attr(self, sid, name):
-        sid_subdir = _sid_subdir_path(sid)
-        sid_path = os.path.join(self._rootdir, sid_subdir)
-        attrs = bcolz.attrs.attrs(sid_path, 'r')
-        try:
-            return attrs[name]
-        except KeyError:
-            return None
-    def get_value(self, sid, dt, field):
-    def get_value(self, sid, dt, field):
+        To test the committee totals if committee filed wrong type of form.
         """
+        params_cmte = {
+            'committee_id': 'C001',
+        }
+        committee_totals_api = self._results(
+            rest.api.url_for(TotalsCommitteeView, **params_cmte)
+        )
+        assert (len(committee_totals_api) == 1)
+        assert committee_totals_api[0]['receipts'] == 300
+        assert committee_totals_api[0]['disbursements'] == 80
         """
-        Retrieve the pricing info for the given sid, dt, and field.
-        Retrieve the pricing info for the given sid, dt, and field.
-            self._last_get_value_dt_value = dt.value
-            self._last_get_value_dt_value = dt.value
-            self._last_get_value_dt_position = minute_pos
-            self._last_get_value_dt_position = minute_pos
-
-
-        value = self._open_minute_file(field, sid)[minute_pos]
-        try:
-            value = self._open_minute_file(field, sid)[minute_pos]
-        except IndexError:
-            value = 0
-        if value == 0:
-        if value == 0:
-            if field == 'volume':
-            if field == 'volume':
-                return 0
-                return 0
+        To test the candidate totals that includes all the committees even filing wrong form
+        """
+        params_cand = {
+            'candidate_id': 'P01',
+            'election_full': True,
+        }
+        candidate_totals_api = self._results(
+            rest.api.url_for(CandidateTotalsView, **params_cand)
+        )
+        assert (len(candidate_totals_api) == 1)
+        assert candidate_totals_api[0]['receipts'] == 311
+        assert candidate_totals_api[0]['disbursements'] == 85
+    def create_cmte_valid(self, committee_data):
+        sql_insert = (
+            "INSERT INTO disclosure.cmte_valid_fec_yr"
+            "(valid_fec_yr_id, cmte_id, fec_election_yr, cmte_tp, cmte_dsgn, date_entered)"
+            "VALUES (%(valid_fec_yr_id)s, %(cmte_id)s, %(fec_election_yr)s, %(cmte_tp)s, "
+            "%(cmte_dsgn)s, %(date_entered)s)"
+        )
+        self.connection.execute(sql_insert, committee_data)
+    def insert_vsum(self, filing):
+        self.connection.execute(
+            """
+            INSERT INTO disclosure.v_sum_and_det_sum_report
+            (orig_sub_id, form_tp_cd, cmte_id, file_num, ttl_receipts, ttl_disb, rpt_yr)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+            filing['sub_id'],
+            filing['form_type'],
+            filing['committee_id'],
+            filing['file_number'],
+            filing['ttl_receipts'],
+            filing['ttl_disb'],
+            filing['rpt_year']
+        )
+        
+    def create_cand_cmte_linkage(self, linkage_data):
+        sql_insert = (
+            "INSERT INTO disclosure.cand_cmte_linkage "
+            "(linkage_id, cand_id, fec_election_yr, cand_election_yr, "
+            "cmte_id, cmte_count_cand_yr, cmte_tp, cmte_dsgn, linkage_type, date_entered) "
+            "VALUES (%(linkage_id)s, %(cand_id)s, "
+            "%(fec_election_yr)s, %(cand_election_yr)s, %(cmte_id)s, %(cmte_count_cand_yr)s, "
+            "%(cmte_tp)s, %(cmte_dsgn)s, %(linkage_type)s, %(date_entered)s)"
+        )
+        self.connection.execute(sql_insert, linkage_data)
 
 ####
-About zipline repo:
-Zipline
-Gitter pypi version status pypi pyversion status travis status appveyor status Coverage Status
-
-Zipline is a Pythonic algorithmic trading library. It is an event-driven system for backtesting. Zipline is currently used in production as the backtesting and live-trading engine powering Quantopian -- a free, community-centered, hosted platform for building and executing trading strategies. Quantopian also offers a fully managed service for professionals that includes Zipline, Alphalens, Pyfolio, FactSet data, and more.
-
-Join our Community!
-Documentation
-Want to Contribute? See our Development Guidelines
-Features
-Ease of Use: Zipline tries to get out of your way so that you can focus on algorithm development. See below for a code example.
-"Batteries Included": many common statistics like moving average and linear regression can be readily accessed from within a user-written algorithm.
-PyData Integration: Input of historical data and output of performance statistics are based on Pandas DataFrames to integrate nicely into the existing PyData ecosystem.
-Statistics and Machine Learning Libraries: You can use libraries like matplotlib, scipy, statsmodels, and sklearn to support development, analysis, and visualization of state-of-the-art trading systems.
-Installation
-####
-
 
 With that content we will have to create below required points in simple human written paragraphs
 1. Initial Prompt
@@ -477,92 +442,20 @@ With that content we will have to create below required points in simple human w
 This our main initial goal.
 For reference this is how those 5 points must look like, Note: This below content was used for another PR work under this same Marlin Project, so just consider it for framing content suitable to our current selected working PR
 ####
-Initial prompt:
+Initial Prompt: 
+Update Gaphor’s property editor to clearly separate model-level and diagram-level behavior for UML Dependency elements. Add a dedicated property page for Dependency model objects that shows Source and Target when selected from the model tree. Refactor the existing Dependency diagram item editor into a separate item-specific page with updated identifiers. Add support for the UML isFinalSpecialization attribute on classifiers and expose it through a toggle in the classifier property editor using proper transaction handling. Update the GTK UI definitions where needed and add unit tests to verify both Dependency property visibility and classifier specialization updates. The changes should follow the UML specification and leave the code production ready.
 
-"Hey, I need to clean up the public API structure for our Ray Serve LLM module. Right now it's kind of a mess - everything's just dumped into `ray.serve.llm` and the naming isn't great.
+Repo Definition: 
+Gaphor is a Python-based UML and SysML modeling application with a GTK user interface. It provides diagram editing and a standards compliant UML data model. The application separates model data, diagram presentations and UI logic to support interactive modeling and programmatic use.
 
-**What I want to achieve:**
-
-Create a better organized namespace structure:
-- `ray.serve.llm.deployment` - for actual deployment classes (`LLMServer`, `PDServer`)
-- `ray.serve.llm.ingress` - for the OpenAI-compatible ingress (`OpenAiIngress`, renamed from `LLMRouter`)
-- `ray.serve.llm.request_router` - for request routing strategies (`PrefixCacheAffinityRouter`)
-
-**Specific tasks:**
-
-1. Create `python/ray/serve/llm/deployment.py`:
-   - Export `LLMServer` (wraps internal `_LLMServer`)
-   - Export `PDServer` (wraps internal `PDProxyServer`) - this is new to public API!
-   - Add `@PublicAPI(stability=""alpha"")` decorator
-   - Write good docstrings explaining what each does
-
-2. Create `python/ray/serve/llm/ingress.py`:
-   - Export `OpenAiIngress` (wraps internal `_LLMRouter`)
-   - Better name that actually tells you it's an OpenAI-compatible endpoint
-
-3. Create `python/ray/serve/llm/request_router.py`:
-   - Export `PrefixCacheAffinityRouter` (wraps internal router)
-   - This is the KV-cache aware router for better cache hit rates
-
-4. Update `python/ray/serve/llm/__init__.py`:
-   - Keep old imports (`LLMRouter`, `LLMServer` at top level) but mark as deprecated
-   - Use `@Deprecated` decorator from rllib (they have nicer warning messages)
-   - Add `build_pd_openai_app` to public exports
-
-5. Update docs in `doc/source/serve/llm/serving-llms.rst`:
-   - Replace `LLMRouter` references with `OpenAiIngress`
-   - Update import examples
-
-6. Update release configs:
-   - Change `import_path` from internal `ray.llm._internal...` to public `ray.serve.llm:build_pd_openai_app`
-
-**Important:**
-- Don't break existing code! Old imports must still work (with deprecation warning)
-- All new public classes need `@PublicAPI(stability=""alpha"")`
-- Keep docstrings clean and helpful - people will be reading these"	
-
-Repo Definition:
-
-"- Ray is basically the go-to framework when you need to scale Python/AI apps across multiple machines. Think of it as ""distributed computing made easy"" - you get actors, tasks, and a whole ecosystem of ML libraries
-- Ray Serve is the serving layer - lets you deploy ML models as scalable microservices. Recently they've been pushing hard on LLM serving with vLLM integration
-- The `ray.serve.llm` module is their newer stuff for LLM-specific deployments - handles things like model loading, OpenAI-compatible APIs, and some fancy features like prefill-decode disaggregation (basically splitting the compute-heavy prefill phase from decode for better GPU utilization)"	
-
-PR definition:
-
-"- So this PR is essentially a ""spring cleaning"" for the public API structure. The old imports were a bit messy - everything dumped into `ray.serve.llm` namespace without much organization
-- The new structure is way cleaner and more intuitive:
-  - `ray.serve.llm.deployment` → `LLMServer`, `PDServer` (the actual deployments)
-  - `ray.serve.llm.ingress` → `OpenAiIngress` (renamed from `LLMRouter` - much clearer what it does now)
-  - `ray.serve.llm.request_router` → `PrefixCacheAffinityRouter` (KV-cache aware routing)
-- They're also exposing `PDServer` (Prefill-Decode disaggregated server) as a public alpha API - this was previously internal only
-- Old imports still work but are deprecated - so existing code won't break immediately, but you'll get warnings nudging you to migrate
-- Also renamed `build_app` to `build_pd_openai_app` in the public namespace - way more descriptive"	
+PR definition: 
+This pull request improves how dependency properties and classifier specialization are handled in Gaphor. It separates the property pages so that model level dependency objects show Source and Target when selected from the model tree. Diagram specific dependency settings remain on the diagram item page. The PR also adds support for the UML isFinalSpecialization attribute on classifiers and exposes it in the property editor. Unit tests are updated to validate the new behavior.
 
 Edge cases:
-
-"- Backward compatibility is the big one - old `from ray.serve.llm import LLMRouter` still needs to work but show deprecation warnings. Don't want to break existing user code
-- The deprecation decorator needs to handle both class imports and function imports gracefully
-- `PDServer` is new to public API - need to make sure the constructor args are clean and well-documented since users will see them for first time
-- Import order matters in Python - circular imports could be an issue when splitting into submodules. Need to be careful with the `__init__.py` structure
-- Type hints and IDE autocomplete should still work with the new module structure
-- Documentation needs updating - any examples using old `LLMRouter` name should be changed to `OpenAiIngress`
-- Release configs (those YAML files) reference internal paths - need to update to use new public `build_pd_openai_app`"	
+The property editor must behave correctly when a dependency is selected from the model tree instead of a diagram. It must also handle cases where Source or Target elements are not resolved yet. The classifier specialization toggle must not break when the attribute is unset or when the selection changes quickly.
 
 Acceptance Criteria:
-
-"- New imports work as expected:
-  - `from ray.serve.llm.deployment import LLMServer, PDServer` ✓
-  - `from ray.serve.llm.ingress import OpenAiIngress` ✓
-  - `from ray.serve.llm.request_router import PrefixCacheAffinityRouter` ✓
-- Old imports show deprecation warnings but still function:
-  - `from ray.serve.llm import LLMRouter` → warns but works
-  - `from ray.serve.llm import LLMServer` → warns but works
-- `@PublicAPI(stability=""alpha"")` decorators are on all newly exposed classes
-- Docstrings are present and helpful - especially for `PDServer` since it's newly public
-- The `build_pd_openai_app` helper is exported and works from `ray.serve.llm`
-- Existing tests pass - no regressions
-- New unit test in `test_llm_imports.py` validates the import structure
-- Documentation updated - `serving-llms.rst` reflects new class names"
+Selecting a dependency from the model tree must show a property page with Source and Target displayed using qualified names. Selecting a dependency item on a diagram must continue to show only diagram related settings. The isFinalSpecialization toggle must correctly update the classifier model state and persist across UI refreshes. All existing and new tests must pass without regressions.
 ####
 
 Now next, we need to frame 3 paragraphs of prompts namely 1st turn, 2nd turn, 3rd turn in such a way keeping our ultimate final goal needed to be achieved in this PR work which a tool named claude-hfi will perform:
