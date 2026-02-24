@@ -1,4 +1,5 @@
 ```bash
+
 Im working on a project About This Project
 This project focuses on reviewing and executing Python code changes using real repositories and pull requests.
 
@@ -44,421 +45,279 @@ The goal of this step is to remove ambiguity and define a prompt that clearly de
 Full Context:
 
 Now i have already completed step 1 and step 2 for you, you/we need to do step-3 with the context i will provide that is present inside github PR conversation. 
-
 ####
-Add integration test coverage for committee financial summary
-#4049
+fix integer math in other location and add tests
+#428
 Merged
-fec-jli
-merged 1 commit into
-develop
+benadida
+merged 2 commits into
+master
 from
-feature/4027-add-test
-on Oct 31, 2019
-+181
-Lines changed: 181 additions & 0 deletions
-Conversation3 (3)
-Commits1 (1)
+claude/add-test-coverage-RiO6o
+on Jan 4
++193
+-1
+Lines changed: 193 additions & 1 deletion
+Conversation0 (0)
+Commits2 (2)
 Checks0 (0)
-Files changed1 (1)
-Merged
-Add integration test coverage for committee financial summary#4049
-fec-jli
-merged 1 commit into
-develop
-from
-feature/4027-add-test
+Files changed2 (2)
 Conversation
-@hcaofec
-Contributor
-hcaofec
+@benadida
+Owner
+benadida
 commented
-on Oct 30, 2019
-• 
-Summary (required)
-Resolves #4027 [Add test coverage for committee financial summary #4027
-Closed
-Parent:
-Sub-epic: Back-end technical debt
-@jason-upchurch
-Description
-jason-upchurch
-opened on Oct 17, 2019
-Contributor
-Summary
-We need to expand test coverage to catch issues related to #4016 [Financial summary missing for committee #4016
-Closed
-#4039
-Closed
-Financial summary missing for committee
-#4016
-#4039
-@lbeaufort
-Description
-lbeaufort
-opened on Oct 16, 2019 · edited by fec-jli
-Member
-A presidential candidate has two committees. The PCC is filing on Form 3P, but the other authorized committee is filing on Form 3. Both committees are committee type "P." The PCC's profile page is ok, https://www.fec.gov/data/committee/C00699090/?cycle=2020. The other authorized committee profile page incorrectly says we don't have data for the committee, https://www.fec.gov/data/committee/C00501197/?cycle=2020.
+on Jan 4
+No description provided.
 
-Ticket to add test coverage for this scenario and base scenarios: Add test coverage for committee financial summary #4027
-Completion Criteria
+claude added 2 commits last month
+@claude
+Add test coverage for absolute majority winner calculation (issue #417) 
+ad3d95e
+@claude
+Fix integer division bug in electionalgs.py and add tests (issue #417) 
+7facbf1
+@benadida benadida merged commit 7e67703 into master on Jan 4
+@benadida benadida mentioned this pull request on Jan 4
+Handling equal votes may need a reconsideration #175
 
-summary should appear for this committee
-
-existing committee profile pages should still calculate properly
-Activity
-
-lbeaufort
-added this to the Sprint 10.4 milestone on Oct 16, 2019
-
-lbeaufort
-added 
-Needs refinement
- 
-Bug
- 
-Data Issue
- on Oct 16, 2019
-
-bmathesonFEC
-removed 
-Needs refinement
- on Oct 17, 2019
-
-jason-upchurch
-mentioned this on Oct 17, 2019
-Add test coverage for committee financial summary #4027
-
-fec-jli
-assigned 
-fec-jli
-and
-hcaofec
-on Oct 18, 2019
-
-fec-jli
-mentioned this in 2 pull requests on Oct 25, 2019
-Add cycles_has_financial /activity in committee history and form_category in filings. #4039
-Fix committee summary page with wrong form or cmte_type. fec-cms#3299
-
-fecjjeng
-mentioned this on Oct 29, 2019
-Add columns to committee_history_mv and filings_all_mv to help filtering to display cycles with either financial reports or with activity. #4043
-
-jason-upchurch
-closed this as completedin #4039on Oct 31, 2019
-
-fec-jli
-mentioned this on Oct 31, 2019
-Financial summary missing for committee fec-cms#3311]
-
-A presidential candidate has two committees. The PCC is filing on Form 3P, but the other authorized committee is filing on Form 3. Both committees are committee type "P." The PCC's profile page is ok, https://www.fec.gov/data/committee/C00699090/?cycle=2020. The other authorized committee profile page incorrectly says we don't have data for the committee, https://www.fec.gov/data/committee/C00501197/?cycle=2020.
-
-First pass at completion criteria
-
-test fails for pre-bug fix above
-
-test passes for correct implementation of bug fix]
-
-Integration tests are added for committee and candidate financial summary.
-
-For committee financial summary, testing scenario when presidential committee files F3x besides F3P
-
-For candidate financial summary, testing scenario when candidate's other authorized committee files on F3
-
-How to test the changes locally
--Download feature branch,
--Run pytest
-
-@hcaofec hcaofec requested review from fec-jli and jason-upchurch 7 years ago
-jason-upchurch
-jason-upchurch approved these changes on Oct 30, 2019
-Contributor
-jason-upchurch
-left a comment
-Looks great @hcaofec! Thank you! 👍
-
-@hcaofec
-Add integration test case for candidate and committee totals
-2c6111b
-@hcaofec hcaofec force-pushed the feature/4027-add-test branch from d81bcc7 to 2c6111b 
-7 years ago
-@codecov-io
-codecov-io
-commented
-on Oct 31, 2019
-Codecov Report
-Merging #4049 into develop will decrease coverage by 0.74%.
-The diff coverage is n/a.
-
-Impacted file tree graph
-
-@@             Coverage Diff             @@
-##           develop    #4049      +/-   ##
-===========================================
-- Coverage    89.72%   88.98%   -0.75%     
-===========================================
-  Files           75       77       +2     
-  Lines         6802     6879      +77     
-===========================================
-+ Hits          6103     6121      +18     
-- Misses         699      758      +59
-Impacted Files	Coverage Δ	
-webservices/partition/utils.py	0% <0%> (ø)	
-webservices/partition/base.py	0% <0%> (ø)	
-webservices/rest.py	93.37% <0%> (+0.6%)	⬆️
-webservices/resources/totals.py	72.03% <0%> (+13.55%)	⬆️
-Continue to review full report at Codecov.
-
-Legend - Click here to learn more
-Δ = absolute <relative> (impact), ø = not affected, ? = missing data
-Powered by Codecov. Last update 1404592...2c6111b. Read the comment docs.
-
-fec-jli
-fec-jli approved these changes on Oct 31, 2019
-Contributor
-fec-jli
-left a comment
-great job.
-
-@fec-jli fec-jli merged commit c20e5e9 into develop on Oct 31, 2019
-@hcaofec hcaofec changed the title Add test coverage for committee financial summary Add integration test coverage for committee financial summary on Oct 31, 2019
-@hcaofec hcaofec deleted the feature/4027-add-test branch 7 years ago
-Merge info
-Pull request successfully merged and closed
-You're all set — the branch has been merged.
-
-
-file:
-Add integration test coverage for committee financial summary
-#4049
+fix integer math in other location and add tests
+#428
 Merged
-fec-jli
-merged 1 commit into
-develop
+benadida
+merged 2 commits into
+master
 from
-feature/4027-add-test
-on Oct 31, 2019
-+181
-Lines changed: 181 additions & 0 deletions
-Conversation3 (3)
-Commits1 (1)
+claude/add-test-coverage-RiO6o
+on Jan 4
++193
+-1
+Lines changed: 193 additions & 1 deletion
+Conversation0 (0)
+Commits2 (2)
 Checks0 (0)
-Files changed1 (1)
+Files changed2 (2)
 Pull Request Toolbar
 Merged
-Add integration test coverage for committee financial summary
-#4049
-fec-jli
-merged 1 commit into
-develop
+fix integer math in other location and add tests
+#428
+benadida
+merged 2 commits into
+master
 from
-feature/4027-add-test
-0 / 1 viewed
+claude/add-test-coverage-RiO6o
+0 / 2 viewed
 Filter files…
 File tree
-tests/integration
-test_totals.py
-‎tests/integration/test_totals.py‎
-+181
-Lines changed: 181 additions & 0 deletions
+helios
+crypto
+electionalgs.py
+tests.py
+‎helios/crypto/electionalgs.py‎
++1
+-1
+Lines changed: 1 addition & 1 deletion
 Original file line number	Original file line	Diff line number	Diff line change
-import codecs
-import pytest
-import json
-import manage
-from tests import common
-from webservices import rest, __API_VERSION__
-from webservices.rest import db
-from webservices.resources.totals import CandidateTotalsView, TotalsCommitteeView
-@pytest.mark.usefixtures("migrate_db")
-class TotalTestCase(common.BaseTestCase):
-    def setUp(self):
-        super().setUp()
-        self.longMessage = True
-        self.maxDiff = None
-        self.request_context = rest.app.test_request_context()
-        self.request_context.push()
-        self.connection = db.engine.connect()
-    def _response(self, qry):
-        response = self.app.get(qry)
-        self.assertEquals(response.status_code, 200)
-        result = json.loads(codecs.decode(response.data))
-        self.assertNotEqual(result, [], "Empty response!")
-        self.assertEqual(result['api_version'], __API_VERSION__)
-        return result
-    def _results(self, qry):
-        response = self._response(qry)
-        return response['results']
-    def test_cand_and_cmte_totals(self):
-        cmte_valid_fec_yr_data = [
-            {
-                'valid_fec_yr_id': 1,
-                'cmte_id': 'C001',
-                'fec_election_yr': 2020,
-                'cmte_tp': 'P',
-                'cmte_dsgn': 'P',
-                'date_entered': 'now()',
-            },
-            {
-                'valid_fec_yr_id': 2,
-                'cmte_id': 'C002',
-                'fec_election_yr': 2020,
-                'cmte_tp': 'P',
-                'cmte_dsgn': 'A',
-                'date_entered': 'now()',
-            },
-        ]
-        self.create_cmte_valid(cmte_valid_fec_yr_data)
-        cand_cmte_linkage_data = [
-            {
-                'linkage_id': 1,
-                'cand_id': 'P01',
-                'fec_election_yr': 2020,
-                'cand_election_yr': 2020,
-                'cmte_id': 'C001',
-                'cmte_count_cand_yr': 1,
-                'cmte_tp': 'P',
-                'cmte_dsgn': 'P',
-                'linkage_type': 'P',
-                'date_entered': 'now()',
-            },
-            {
-                'linkage_id': 3,
-                'cand_id': 'P01',
-                'fec_election_yr': 2020,
-                'cand_election_yr': 2020,
-                'cmte_id': 'C002',
-                'cmte_count_cand_yr': 1,
-                'cmte_tp': 'P',
-                'cmte_dsgn': 'A',
-                'linkage_type': 'A',
-                'date_entered': 'now()',
-            },
-        ]
-        self.create_cand_cmte_linkage(cand_cmte_linkage_data)
-        filing_f3p_q1 = {
-            'committee_id': 'C001',
-            'report_year': 2019,
-            'file_number': 10001,
-            'ttl_receipts': 100,
-            'ttl_disb': 30,
-            'form_type': 'F3P',
-            'sub_id': 1,
-            'rpt_year': 2019
+
+
+    # if max = 1, then depends on absolute or relative
+    # if max = 1, then depends on absolute or relative
+    if question['result_type'] == 'absolute':
+    if question['result_type'] == 'absolute':
+        if counts[0][1] >= (num_cast_votes / 2 + 1):
+        if counts[0][1] >= (num_cast_votes // 2 + 1):
+            return [counts[0][0]]
+            return [counts[0][0]]
+        else:
+        else:
+            return []
+            return []
+‎helios/tests.py‎
++192
+Lines changed: 192 additions & 0 deletions
+Original file line number	Original file line	Diff line number	Diff line change
+import helios.utils as utils
+import helios.utils as utils
+import helios.views as views
+import helios.views as views
+from helios import tasks
+from helios import tasks
+from helios.crypto import electionalgs
+from helios_auth import models as auth_models
+from helios_auth import models as auth_models
+
+
+
+
+        self.assertEqual(voter.user, self.user)
+        self.assertEqual(voter.user, self.user)
+
+
+
+
+class AbsoluteWinnerCalculationTests(TestCase):
+    """
+    Tests for the one_question_winner method with absolute result type.
+    These tests verify that integer division is used correctly when calculating
+    the majority threshold. With 5 votes, a candidate needs 3 votes to win
+    (5//2 + 1 = 3). With 6 votes, a candidate needs 4 votes (6//2 + 1 = 4).
+    Regression tests for GitHub issue #417.
+    """
+    def make_absolute_question(self):
+        """Create a question with absolute result type"""
+        return {
+            "answer_urls": [None, None],
+            "answers": ["Yes", "No"],
+            "choice_type": "approval",
+            "max": 1,
+            "min": 0,
+            "question": "Test?",
+            "result_type": "absolute",
+            "short_name": "Test?",
+            "tally_type": "homomorphic"
         }
-        filing_f3x_q2 = {
-            'committee_id': 'C001',
-            'report_year': 2019,
-            'file_number': 10002,
-            'ttl_receipts': 200,
-            'ttl_disb': 50,
-            'form_type': 'F3X',
-            'sub_id': 2,
-            'rpt_year': 2019
-        }
-        filing_f3_q1 = {
-            'committee_id': 'C002',
-            'report_year': 2019,
-            'file_number': 10004,
-            'ttl_receipts': 11,
-            'ttl_disb': 5,
-            'form_type': 'F3',
-            'sub_id': 3,
-            'rpt_year': 2019
-        }
-        self.insert_vsum(filing_f3p_q1)
-        self.insert_vsum(filing_f3x_q2)
-        self.insert_vsum(filing_f3_q1)
-        manage.refresh_materialized(concurrent=False)
+    def test_absolute_winner_with_5_votes_needs_3_to_win(self):
         """
-        To test the committee totals if committee filed wrong type of form.
+        With 5 total votes, a candidate needs 3 votes to win (5//2 + 1 = 3).
+        This tests the integer division fix: with float division (5/2 + 1 = 3.5),
+        a candidate with 3 votes would incorrectly not win.
         """
-        params_cmte = {
-            'committee_id': 'C001',
+        question = self.make_absolute_question()
+        # Result: Yes got 3 votes, No got 2 votes
+        result = [3, 2]
+        num_cast_votes = 5
+        winners = models.Election.one_question_winner(question, result, num_cast_votes)
+        # Candidate 0 (Yes) should win with 3 votes (absolute majority of 5)
+        self.assertEqual(winners, [0])
+    def test_absolute_winner_with_5_votes_2_not_enough(self):
+        """
+        With 5 total votes, 2 votes is not enough to win (needs 3).
+        """
+        question = self.make_absolute_question()
+        # Result: Yes got 2 votes, No got 3 votes (but No needs 3 to win too)
+        result = [2, 3]
+        num_cast_votes = 5
+        winners = models.Election.one_question_winner(question, result, num_cast_votes)
+        # Candidate 1 (No) wins with 3 votes
+        self.assertEqual(winners, [1])
+    def test_absolute_no_winner_with_5_votes_when_tie(self):
+        """
+        With 5 votes split without anyone reaching majority, no winner.
+        """
+        question = self.make_absolute_question()
+        # Result: Yes got 2 votes, No got 2 votes, 1 abstention
+        result = [2, 2]
+        num_cast_votes = 5
+        winners = models.Election.one_question_winner(question, result, num_cast_votes)
+        # No one has 3 votes, so no winner
+        self.assertEqual(winners, [])
+    def test_absolute_winner_with_6_votes_needs_4_to_win(self):
+        """
+        With 6 total votes, a candidate needs 4 votes to win (6//2 + 1 = 4).
+        """
+        question = self.make_absolute_question()
+        # Result: Yes got 4 votes, No got 2 votes
+        result = [4, 2]
+        num_cast_votes = 6
+        winners = models.Election.one_question_winner(question, result, num_cast_votes)
+        # Candidate 0 (Yes) should win with 4 votes
+        self.assertEqual(winners, [0])
+    def test_absolute_no_winner_with_6_votes_only_3(self):
+        """
+        With 6 total votes, 3 votes is not enough to win (needs 4).
+        """
+        question = self.make_absolute_question()
+        # Result: Yes got 3 votes, No got 3 votes
+        result = [3, 3]
+        num_cast_votes = 6
+        winners = models.Election.one_question_winner(question, result, num_cast_votes)
+        # Neither candidate has 4 votes, so no winner
+        self.assertEqual(winners, [])
+    def test_absolute_winner_with_7_votes_needs_4_to_win(self):
+        """
+        With 7 total votes, a candidate needs 4 votes to win (7//2 + 1 = 4).
+        """
+        question = self.make_absolute_question()
+        # Result: Yes got 4 votes, No got 3 votes
+        result = [4, 3]
+        num_cast_votes = 7
+        winners = models.Election.one_question_winner(question, result, num_cast_votes)
+        # Candidate 0 (Yes) should win with 4 votes
+        self.assertEqual(winners, [0])
+    def test_relative_winner_does_not_require_majority(self):
+        """
+        With relative result type, highest vote count wins regardless of majority.
+        """
+        question = self.make_absolute_question()
+        question['result_type'] = 'relative'
+        # Result: Yes got 2 votes, No got 1 vote
+        result = [2, 1]
+        num_cast_votes = 5
+        winners = models.Election.one_question_winner(question, result, num_cast_votes)
+        # Candidate 0 (Yes) wins even without majority in relative mode
+        self.assertEqual(winners, [0])
+class ElectionAlgsWinnerCalculationTests(TestCase):
+    """
+    Tests for the one_question_winner function in helios.crypto.electionalgs.
+    This is a duplicate of the function in models.py and needs the same
+    integer division fix. These tests verify both implementations are correct.
+    Regression tests for GitHub issue #417.
+    """
+    def make_absolute_question(self):
+        """Create a question with absolute result type"""
+        return {
+            "answer_urls": [None, None],
+            "answers": ["Yes", "No"],
+            "choice_type": "approval",
+            "max": 1,
+            "min": 0,
+            "question": "Test?",
+            "result_type": "absolute",
+            "short_name": "Test?",
+            "tally_type": "homomorphic"
         }
-        committee_totals_api = self._results(
-            rest.api.url_for(TotalsCommitteeView, **params_cmte)
-        )
-        assert (len(committee_totals_api) == 1)
-        assert committee_totals_api[0]['receipts'] == 300
-        assert committee_totals_api[0]['disbursements'] == 80
+    def test_electionalgs_absolute_winner_with_5_votes_needs_3_to_win(self):
         """
-        To test the candidate totals that includes all the committees even filing wrong form
+        With 5 total votes, a candidate needs 3 votes to win (5//2 + 1 = 3).
+        Tests the electionalgs.one_question_winner function.
         """
-        params_cand = {
-            'candidate_id': 'P01',
-            'election_full': True,
-        }
-        candidate_totals_api = self._results(
-            rest.api.url_for(CandidateTotalsView, **params_cand)
-        )
-        assert (len(candidate_totals_api) == 1)
-        assert candidate_totals_api[0]['receipts'] == 311
-        assert candidate_totals_api[0]['disbursements'] == 85
-    def create_cmte_valid(self, committee_data):
-        sql_insert = (
-            "INSERT INTO disclosure.cmte_valid_fec_yr"
-            "(valid_fec_yr_id, cmte_id, fec_election_yr, cmte_tp, cmte_dsgn, date_entered)"
-            "VALUES (%(valid_fec_yr_id)s, %(cmte_id)s, %(fec_election_yr)s, %(cmte_tp)s, "
-            "%(cmte_dsgn)s, %(date_entered)s)"
-        )
-        self.connection.execute(sql_insert, committee_data)
-    def insert_vsum(self, filing):
-        self.connection.execute(
-            """
-            INSERT INTO disclosure.v_sum_and_det_sum_report
-            (orig_sub_id, form_tp_cd, cmte_id, file_num, ttl_receipts, ttl_disb, rpt_yr)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)""",
-            filing['sub_id'],
-            filing['form_type'],
-            filing['committee_id'],
-            filing['file_number'],
-            filing['ttl_receipts'],
-            filing['ttl_disb'],
-            filing['rpt_year']
-        )
-        
-    def create_cand_cmte_linkage(self, linkage_data):
-        sql_insert = (
-            "INSERT INTO disclosure.cand_cmte_linkage "
-            "(linkage_id, cand_id, fec_election_yr, cand_election_yr, "
-            "cmte_id, cmte_count_cand_yr, cmte_tp, cmte_dsgn, linkage_type, date_entered) "
-            "VALUES (%(linkage_id)s, %(cand_id)s, "
-            "%(fec_election_yr)s, %(cand_election_yr)s, %(cmte_id)s, %(cmte_count_cand_yr)s, "
-            "%(cmte_tp)s, %(cmte_dsgn)s, %(linkage_type)s, %(date_entered)s)"
-        )
-        self.connection.execute(sql_insert, linkage_data)
+        question = self.make_absolute_question()
+        result = [3, 2]
+        num_cast_votes = 5
+        winners = electionalgs.one_question_winner(question, result, num_cast_votes)
+        self.assertEqual(winners, [0])
+    def test_electionalgs_absolute_winner_with_7_votes_needs_4_to_win(self):
+        """
+        With 7 total votes, a candidate needs 4 votes to win (7//2 + 1 = 4).
+        Tests the electionalgs.one_question_winner function.
+        """
+        question = self.make_absolute_question()
+        result = [4, 3]
+        num_cast_votes = 7
+        winners = electionalgs.one_question_winner(question, result, num_cast_votes)
+        self.assertEqual(winners, [0])
+    def test_electionalgs_absolute_no_winner_when_threshold_not_met(self):
+        """
+        With 5 votes, 2 votes is not enough to win.
+        Tests the electionalgs.one_question_winner function.
+        """
+        question = self.make_absolute_question()
+        result = [2, 2]
+        num_cast_votes = 5
+        winners = electionalgs.one_question_winner(question, result, num_cast_votes)
+        self.assertEqual(winners, [])
+
+
+class VoterModelTests(TestCase):
+class VoterModelTests(TestCase):
+    fixtures = ['users.json', 'election.json']
+    fixtures = ['users.json', 'election.json']
+
 
 ####
 
-With that content we will have to create below required points in simple human written paragraphs
-1. Initial Prompt
-2. Repo Definition
-3. PR definition
-4. Edge cases
-5. Acceptance Criteria
-
-This our main initial goal.
-For reference this is how those 5 points must look like, Note: This below content was used for another PR work under this same Marlin Project, so just consider it for framing content suitable to our current selected working PR
-####
-Initial Prompt: 
-Update Gaphor’s property editor to clearly separate model-level and diagram-level behavior for UML Dependency elements. Add a dedicated property page for Dependency model objects that shows Source and Target when selected from the model tree. Refactor the existing Dependency diagram item editor into a separate item-specific page with updated identifiers. Add support for the UML isFinalSpecialization attribute on classifiers and expose it through a toggle in the classifier property editor using proper transaction handling. Update the GTK UI definitions where needed and add unit tests to verify both Dependency property visibility and classifier specialization updates. The changes should follow the UML specification and leave the code production ready.
-
-Repo Definition: 
-Gaphor is a Python-based UML and SysML modeling application with a GTK user interface. It provides diagram editing and a standards compliant UML data model. The application separates model data, diagram presentations and UI logic to support interactive modeling and programmatic use.
-
-PR definition: 
-This pull request improves how dependency properties and classifier specialization are handled in Gaphor. It separates the property pages so that model level dependency objects show Source and Target when selected from the model tree. Diagram specific dependency settings remain on the diagram item page. The PR also adds support for the UML isFinalSpecialization attribute on classifiers and exposes it in the property editor. Unit tests are updated to validate the new behavior.
-
-Edge cases:
-The property editor must behave correctly when a dependency is selected from the model tree instead of a diagram. It must also handle cases where Source or Target elements are not resolved yet. The classifier specialization toggle must not break when the attribute is unset or when the selection changes quickly.
-
-Acceptance Criteria:
-Selecting a dependency from the model tree must show a property page with Source and Target displayed using qualified names. Selecting a dependency item on a diagram must continue to show only diagram related settings. The isFinalSpecialization toggle must correctly update the classifier model state and persist across UI refreshes. All existing and new tests must pass without regressions.
-####
-
-Now next, we need to frame 3 paragraphs of prompts namely 1st turn, 2nd turn, 3rd turn in such a way keeping our ultimate final goal needed to be achieved in this PR work which a tool named claude-hfi will perform:
+Now next, we need to frame 3 paragraphs of prompts namely 1st turn, 2nd turn, 3rd turn in such a way keeping our ultimate final goal needed to be achieved in this PR work which a tool named claude-hfi will perform. Make sure that the initial prompt and 1st tuen prompt should be almost mostly identical, In the 2nd turn, you will write the prompt in such a way that the existing cons are removed and only the points present in the PR are achieved(which are the changes). Then I will mention that the comments in the cons are not proper.
+In the 3rd turn, you will write all the detailed comments. 
 
 They should somewhat look like this:
 ####
@@ -471,6 +330,8 @@ Update the way in which the ray.serve.llm package initializes to continue to fun
 Paragraph 3
 Before finalizing, we need to confirm the accuracy and production readiness of these changes. Please make sure that there are existing unit tests covering these new public-API functionalities, including PDServer and PrefixCacheAffinityRouter. Also, make sure that all existing unit tests are successful without any issues. As part of finalizing the changes, only a minimal number of changes are required to be applied to introduce PDServer and PrefixCacheAffinityRouter as part of public-API Alpha without any over-engineering changes applied in these changes. As a part of finally fixing these changes, the README.md file needs to be modified with a very small description of changes impacting public-API and enhancements in terms of module structure to help users quickly understand changes applied.
 #### 
+
+give in paragraphs only, the thing is fist you need to analyze the file changes done in helios/crypto/electionalgs.py (one change- from:   if counts[0][1] >= (num_cast_votes / 2 + 1), to : if counts[0][1] >= (num_cast_votes // 2 + 1):) and in helios/tests.py - 2 new class created each with 8 and 4 functions respectively as providedand genertate 5 point preparations steps and 3 turns prompts as suggested (for second and 3rd prompts you can assume and generate as requested cons and coments and  all things, later we will modify them)
 
 ```
 
