@@ -1,0 +1,195 @@
+```bash
+PR titile: Add integration test coverage for committee financial summary
+
+tests/integration/test_totals.py
++181
+Lines changed: 181 additions & 0 deletions
+Original file line number	Original file line	Diff line number	Diff line change
+#### 
+import codecs
+import pytest
+import json
+import manage
+from tests import common
+from webservices import rest, __API_VERSION__
+from webservices.rest import db
+from webservices.resources.totals import CandidateTotalsView, TotalsCommitteeView
+@pytest.mark.usefixtures("migrate_db")
+class TotalTestCase(common.BaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.longMessage = True
+        self.maxDiff = None
+        self.request_context = rest.app.test_request_context()
+        self.request_context.push()
+        self.connection = db.engine.connect()
+    def _response(self, qry):
+        response = self.app.get(qry)
+        self.assertEquals(response.status_code, 200)
+        result = json.loads(codecs.decode(response.data))
+        self.assertNotEqual(result, [], "Empty response!")
+        self.assertEqual(result['api_version'], __API_VERSION__)
+        return result
+    def _results(self, qry):
+        response = self._response(qry)
+        return response['results']
+    def test_cand_and_cmte_totals(self):
+        cmte_valid_fec_yr_data = [
+            {
+                'valid_fec_yr_id': 1,
+                'cmte_id': 'C001',
+                'fec_election_yr': 2020,
+                'cmte_tp': 'P',
+                'cmte_dsgn': 'P',
+                'date_entered': 'now()',
+            },
+            {
+                'valid_fec_yr_id': 2,
+                'cmte_id': 'C002',
+                'fec_election_yr': 2020,
+                'cmte_tp': 'P',
+                'cmte_dsgn': 'A',
+                'date_entered': 'now()',
+            },
+        ]
+        self.create_cmte_valid(cmte_valid_fec_yr_data)
+        cand_cmte_linkage_data = [
+            {
+                'linkage_id': 1,
+                'cand_id': 'P01',
+                'fec_election_yr': 2020,
+                'cand_election_yr': 2020,
+                'cmte_id': 'C001',
+                'cmte_count_cand_yr': 1,
+                'cmte_tp': 'P',
+                'cmte_dsgn': 'P',
+                'linkage_type': 'P',
+                'date_entered': 'now()',
+            },
+            {
+                'linkage_id': 3,
+                'cand_id': 'P01',
+                'fec_election_yr': 2020,
+                'cand_election_yr': 2020,
+                'cmte_id': 'C002',
+                'cmte_count_cand_yr': 1,
+                'cmte_tp': 'P',
+                'cmte_dsgn': 'A',
+                'linkage_type': 'A',
+                'date_entered': 'now()',
+            },
+        ]
+        self.create_cand_cmte_linkage(cand_cmte_linkage_data)
+        filing_f3p_q1 = {
+            'committee_id': 'C001',
+            'report_year': 2019,
+            'file_number': 10001,
+            'ttl_receipts': 100,
+            'ttl_disb': 30,
+            'form_type': 'F3P',
+            'sub_id': 1,
+            'rpt_year': 2019
+        }
+        filing_f3x_q2 = {
+            'committee_id': 'C001',
+            'report_year': 2019,
+            'file_number': 10002,
+            'ttl_receipts': 200,
+            'ttl_disb': 50,
+            'form_type': 'F3X',
+            'sub_id': 2,
+            'rpt_year': 2019
+        }
+        filing_f3_q1 = {
+            'committee_id': 'C002',
+            'report_year': 2019,
+            'file_number': 10004,
+            'ttl_receipts': 11,
+            'ttl_disb': 5,
+            'form_type': 'F3',
+            'sub_id': 3,
+            'rpt_year': 2019
+        }
+        self.insert_vsum(filing_f3p_q1)
+        self.insert_vsum(filing_f3x_q2)
+        self.insert_vsum(filing_f3_q1)
+        manage.refresh_materialized(concurrent=False)
+        """
+        To test the committee totals if committee filed wrong type of form.
+        """
+        params_cmte = {
+            'committee_id': 'C001',
+        }
+        committee_totals_api = self._results(
+            rest.api.url_for(TotalsCommitteeView, **params_cmte)
+        )
+        assert (len(committee_totals_api) == 1)
+        assert committee_totals_api[0]['receipts'] == 300
+        assert committee_totals_api[0]['disbursements'] == 80
+        """
+        To test the candidate totals that includes all the committees even filing wrong form
+        """
+        params_cand = {
+            'candidate_id': 'P01',
+            'election_full': True,
+        }
+        candidate_totals_api = self._results(
+            rest.api.url_for(CandidateTotalsView, **params_cand)
+        )
+        assert (len(candidate_totals_api) == 1)
+        assert candidate_totals_api[0]['receipts'] == 311
+        assert candidate_totals_api[0]['disbursements'] == 85
+    def create_cmte_valid(self, committee_data):
+        sql_insert = (
+            "INSERT INTO disclosure.cmte_valid_fec_yr"
+            "(valid_fec_yr_id, cmte_id, fec_election_yr, cmte_tp, cmte_dsgn, date_entered)"
+            "VALUES (%(valid_fec_yr_id)s, %(cmte_id)s, %(fec_election_yr)s, %(cmte_tp)s, "
+            "%(cmte_dsgn)s, %(date_entered)s)"
+        )
+        self.connection.execute(sql_insert, committee_data)
+    def insert_vsum(self, filing):
+        self.connection.execute(
+            """
+            INSERT INTO disclosure.v_sum_and_det_sum_report
+            (orig_sub_id, form_tp_cd, cmte_id, file_num, ttl_receipts, ttl_disb, rpt_yr)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+            filing['sub_id'],
+            filing['form_type'],
+            filing['committee_id'],
+            filing['file_number'],
+            filing['ttl_receipts'],
+            filing['ttl_disb'],
+            filing['rpt_year']
+        )
+        
+    def create_cand_cmte_linkage(self, linkage_data):
+        sql_insert = (
+            "INSERT INTO disclosure.cand_cmte_linkage "
+            "(linkage_id, cand_id, fec_election_yr, cand_election_yr, "
+            "cmte_id, cmte_count_cand_yr, cmte_tp, cmte_dsgn, linkage_type, date_entered) "
+            "VALUES (%(linkage_id)s, %(cand_id)s, "
+            "%(fec_election_yr)s, %(cand_election_yr)s, %(cmte_id)s, %(cmte_count_cand_yr)s, "
+            "%(cmte_tp)s, %(cmte_dsgn)s, %(linkage_type)s, %(date_entered)s)"
+        )
+        self.connection.execute(sql_insert, linkage_data)
+
+####
+Initial Prompt:
+Expand integration test coverage for the financial summary API endpoints to ensure committee and candidate totals are calculated correctly when multiple authorized committees exist and when different form types are filed within the same election cycle. The tests should simulate a scenario where a presidential candidate has more than one authorized committee, including cases where one committee files using a presidential form such as F3P while another files using F3 or F3X. The tests must insert realistic committee validation records, candidate-committee linkage records, and filing summary data into the disclosure tables, refresh materialized views, and then verify that the committee totals endpoint aggregates all applicable filings for a given committee and that the candidate totals endpoint aggregates totals across all linked committees. The tests must validate both receipts and disbursements, ensure non empty responses, and avoid modifying production logic or introducing unrelated refactors.
+
+Repo Definition:
+This repository provides REST API endpoints that expose financial data for election committees and candidates, aggregating disclosure information stored in database tables and materialized views. Committee and candidate totals are calculated from validation tables, candidate committee linkage tables, and summarized filing data derived from submitted reports. The correctness of these totals is essential because they power public facing financial summaries, and the aggregation logic must accurately handle multiple committees, different filing forms, and election cycle filtering. Integration tests interact with the database layer and refresh materialized views to ensure the API responses reflect accurate and consistent financial calculations.
+
+PR Definition:
+This change adds integration tests that validate correct aggregation behavior for committee and candidate financial summaries when multiple committees and mixed filing form types are involved. The tests construct database state with multiple committees in the same election cycle, link a candidate to more than one committee, insert filing summary records using different form types, and refresh materialized views before invoking the totals endpoints. The committee totals test verifies that all relevant filings for a specific committee are aggregated correctly, while the candidate totals test verifies that totals are aggregated across all authorized committees linked to the candidate. The change increases coverage around scenarios where financial summaries could otherwise be missing or incorrectly calculated due to form type or linkage conditions.
+
+Edge Cases:
+The tests must account for committees filing more than one form type within the same reporting year, candidates linked to multiple authorized committees with different designations, and scenarios where aggregation logic could mistakenly exclude valid filings. They must ensure materialized views are refreshed before querying totals, confirm that mixing form types does not prevent financial data from being included in calculations, and verify that totals are scoped correctly to the intended election cycle. The tests must also ensure that empty responses are not returned when valid financial data exists and that receipts and disbursements are accurately summed across all applicable filings.
+
+Acceptance Criteria:
+Integration tests insert required committee validation, candidate committee linkage, and filing summary records into the disclosure tables and refresh materialized views before calling the totals endpoints. The committee totals endpoint returns a single result with correctly aggregated receipts and disbursements for the specified committee, and the candidate totals endpoint returns a single result with correctly aggregated totals across all linked committees. The API response includes the expected version information and is not empty, existing tests continue to pass without regression, and no production aggregation logic is modified as part of this change.
+
+
+now for the changes in file should be our final desired goal solution for the PR i.e for the targeted new file genertaionn for tests and for my 5 similar points, are they even mapping correctly and hope they will be done perfoectly when give in three prompts where first one will the same initial prompt and necxt 2 will be targeted onto cons of tuen 1 and turn 3 will focus on comments and all as mentioned above
+
+```
