@@ -1,0 +1,11 @@
+Ctrl+b [
+
+q
+
+ls -lh full_output.txt
+
+less full_output.txt
+
+cat full_output.txt
+
+cp full_output.txt /mnt/c/Users/V.Ashok/Downloads/
