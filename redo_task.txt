@@ -1,0 +1,166 @@
+laxman@LAPTOP-D0BA5CIS:~/flyway-5.2.4$ cd ~
+laxman@LAPTOP-D0BA5CIS:~$ cd marlin
+laxman@LAPTOP-D0BA5CIS:~/marlin$ ls
+openFEC
+laxman@LAPTOP-D0BA5CIS:~/marlin$ cd openFEC
+laxman@LAPTOP-D0BA5CIS:~/marlin/openFEC$ ls
+4049
+laxman@LAPTOP-D0BA5CIS:~/marlin/openFEC$ cd ~
+laxman@LAPTOP-D0BA5CIS:~$ cd zulip
+laxman@LAPTOP-D0BA5CIS:~/zulip$ ls
+20496
+laxman@LAPTOP-D0BA5CIS:~/zulip$ cd 20496
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496$ ls
+zulip-58438c362f2eb0d5cc300543b501dd5cda457f16  zulip-58438c362f2eb0d5cc300543b501dd5cda457f16.tar.gz
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496$ cd zulip-58438c362f2eb0d5cc300543b501dd5cda457f16
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496/zulip-58438c362f2eb0d5cc300543b501dd5cda457f16$ ls
+CODE_OF_CONDUCT.md     Vagrantfile      frontend_tests      puppet          stylelint.config.js  yarn.lock
+CONTRIBUTING.md        analytics        locale              pyproject.toml  templates            zerver
+Dockerfile-postgresql  babel.config.js  manage.py           requirements    tools                zilencer
+LICENSE                claude-hfi       package.json        scripts         tsconfig.json        zproject
+NOTICE                 confirmation     pgroonga            setup.cfg       var
+README.md              corporate        postcss.config.js   static          version.py
+SECURITY.md            docs             prettier.config.js  stubs           webpack.config.ts
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496/zulip-58438c362f2eb0d5cc300543b501dd5cda457f16$ rm -rf zulip-58438c362f2eb0d5cc300543b501dd5cda457f16
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496/zulip-58438c362f2eb0d5cc300543b501dd5cda457f16$ rm -f zulip-58438c362f2eb0d5cc300543b501dd5cda457f16.tar.gz
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496/zulip-58438c362f2eb0d5cc300543b501dd5cda457f16$ rm -rf ~/zulip/20496/zulip-58438c362f2eb0d5cc300543b501dd5cda457f16/claude-hfi
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496/zulip-58438c362f2eb0d5cc300543b501dd5cda457f16$ ls -la ~/zulip/20496
+total 31348
+drwxr-xr-x  3 laxman laxman     4096 Feb 20 18:09 .
+drwxr-xr-x  3 laxman laxman     4096 Feb 19 09:59 ..
+drwxr-xr-x 24 laxman laxman     4096 Feb 26 18:57 zulip-58438c362f2eb0d5cc300543b501dd5cda457f16
+-rwxr-xr-x  1 laxman laxman 32086119 Feb 19 10:00 zulip-58438c362f2eb0d5cc300543b501dd5cda457f16.tar.gz
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496/zulip-58438c362f2eb0d5cc300543b501dd5cda457f16$ cd ~/zulip/20496
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496$ ls
+zulip-58438c362f2eb0d5cc300543b501dd5cda457f16  zulip-58438c362f2eb0d5cc300543b501dd5cda457f16.tar.gz
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496$ rm -rf zulip-58438c362f2eb0d5cc300543b501dd5cda457f16
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496$ rm -f zulip-58438c362f2eb0d5cc300543b501dd5cda457f16.tar.gz
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496$ rm -rf ~/zulip/20496/zulip-58438c362f2eb0d5cc300543b501dd5cda457f16/claude-hfi
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496$ ls -la ~/zulip/20496
+total 8
+drwxr-xr-x 2 laxman laxman 4096 Feb 26 18:57 .
+drwxr-xr-x 3 laxman laxman 4096 Feb 19 09:59 ..
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496$ ls
+...
+...
+...
+...
+...
+...
+...
+...
+...
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496/zulip-58438c362f2eb0d5cc300543b501dd5cda457f16$ cd ~/zulip/20496
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496$ rm -rf *
+rm -rf .git 2>/dev/null
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496$ ls
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496$ ls -la
+total 8
+drwxr-xr-x 2 laxman laxman 4096 Feb 26 19:30 .
+drwxr-xr-x 3 laxman laxman 4096 Feb 19 09:59 ..
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496$ cd ~
+laxman@LAPTOP-D0BA5CIS:~$ ls
+flyway-5.2.4  flyway.tar.gz  marlin  pg_local  zulip
+laxman@LAPTOP-D0BA5CIS:~$ cd /mnt/c/Users/V.Ashok/Downloads
+laxman@LAPTOP-D0BA5CIS:/mnt/c/Users/V.Ashok/Downloads$ ls
+ ADP_GCFFormIndia_signed.pdf                                                                Vvs_bdev_Oresume.pdf
+'ADP_Offer Letter.pdf'                                                                      Vvs_cresume.pdf
+'Assignment-Full Stack Developer.pdf'                                                       Vvs_dev_resume.pdf
+'Backend - Intern (2) (2).pdf'                                                              Vvs_resumez.pdf
+ Certificates_merged_compressed.pdf                                                         Vvsl_resume.pdf
+'Forward Learning Workbook.pdf'                                                            'WhatsApp Installer.exe'
+'Front-End Software Development - Intern (2) (1) (1) (3).pdf'                               api-key.txt
+ IBM-SQL-and-relational.pdf                                                                 board_certificate.pdf
+'Kantara A Legend Chapter 1 (2025) Telugu HQ HDRip - x264 - (AAC 2.0) - 700MB - ESub.mkv'   desktop.ini
+ MARLIN-BEGINNER-GUIDE.md                                                                   excel1.pdf
+ OD435627266883914100.pdf                                                                   full_output.txt
+ OplusConnectSetUp_16.0.15_export_251105210651_073a0ba78.exe                                marlin
+'Oracle Certification exam.ics'                                                             me_p+.jpg
+ Payslip_ADP.pdf                                                                            mlflow-6f61624f40596d03c5d384cbe7baf1ccdedb9f6d.tar.gz
+ Pi7_Tool_btech_pc.jpg                                                                     'notes[1].txt'
+ Profile.pdf                                                                                openFEC-14045922a9a894a8412fc72b1b6b7e31bff42801.tar.gz
+ RobloxPlayerInstaller-2DFGF9C6X4.exe                                                       prompt_creation.txt
+'SAS Sheet 5.xlsx'                                                                          python-3.11.9-amd64.exe
+'Senior Data Architecture and Engineering Interview Compendium.pdf'                        'vangala-venkata_sai_laxman-ab_pdf_[ab].pdf'
+ UltraViewer_setup_6.6.124_en.exe                                                           vvs_laxman_resume.pdf
+'VLC Installer.exe'                                                                        '~$Idea-Presentation-Format-SIH2023-College[1].pptx'
+ Venkata_resume.pdf                                                                        '~$revised.pptx'
+laxman@LAPTOP-D0BA5CIS:/mnt/c/Users/V.Ashok/Downloads$ cd ~
+ls -l claude-hfi
+ls: cannot access 'claude-hfi': No such file or directory
+laxman@LAPTOP-D0BA5CIS:~$ cd ~
+laxman@LAPTOP-D0BA5CIS:~$ ls -l claude-hfi
+ls: cannot access 'claude-hfi': No such file or directory
+laxman@LAPTOP-D0BA5CIS:~$ cd /mnt/c/Users/V.Ashok/Downloads
+laxman@LAPTOP-D0BA5CIS:/mnt/c/Users/V.Ashok/Downloads$ ls
+ ADP_GCFFormIndia_signed.pdf                                                                Vvs_cresume.pdf
+'ADP_Offer Letter.pdf'                                                                      Vvs_dev_resume.pdf
+'Assignment-Full Stack Developer.pdf'                                                       Vvs_resumez.pdf
+'Backend - Intern (2) (2).pdf'                                                              Vvsl_resume.pdf
+ Certificates_merged_compressed.pdf                                                        'WhatsApp Installer.exe'
+'Forward Learning Workbook.pdf'                                                             api-key.txt
+'Front-End Software Development - Intern (2) (1) (1) (3).pdf'                               board_certificate.pdf
+ IBM-SQL-and-relational.pdf                                                                 desktop.ini
+'Kantara A Legend Chapter 1 (2025) Telugu HQ HDRip - x264 - (AAC 2.0) - 700MB - ESub.mkv'   excel1.pdf
+ MARLIN-BEGINNER-GUIDE.md                                                                   full_output.txt
+ OD435627266883914100.pdf                                                                   marlin
+ OplusConnectSetUp_16.0.15_export_251105210651_073a0ba78.exe                                me_p+.jpg
+'Oracle Certification exam.ics'                                                             mlflow-6f61624f40596d03c5d384cbe7baf1ccdedb9f6d.tar.gz
+ Payslip_ADP.pdf                                                                           'notes[1].txt'
+ Pi7_Tool_btech_pc.jpg                                                                      openFEC-14045922a9a894a8412fc72b1b6b7e31bff42801.tar.gz
+ Profile.pdf                                                                                prompt_creation.txt
+ RobloxPlayerInstaller-2DFGF9C6X4.exe                                                       python-3.11.9-amd64.exe
+'SAS Sheet 5.xlsx'                                                                         'vangala-venkata_sai_laxman-ab_pdf_[ab].pdf'
+'Senior Data Architecture and Engineering Interview Compendium.pdf'                         vvs_laxman_resume.pdf
+ UltraViewer_setup_6.6.124_en.exe                                                           zulip-58438c362f2eb0d5cc300543b501dd5cda457f16.tar.gz
+'VLC Installer.exe'                                                                        '~$Idea-Presentation-Format-SIH2023-College[1].pptx'
+ Venkata_resume.pdf                                                                        '~$revised.pptx'
+ Vvs_bdev_Oresume.pdf
+laxman@LAPTOP-D0BA5CIS:/mnt/c/Users/V.Ashok/Downloads$ ^C
+laxman@LAPTOP-D0BA5CIS:/mnt/c/Users/V.Ashok/Downloads$
+laxman@LAPTOP-D0BA5CIS:/mnt/c/Users/V.Ashok/Downloads$ cd ~/zulip/20496
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496$ ls
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496$ cp /mnt/c/Users/V.Ashok/Downloads/zulip-58438c362f2eb0d5cc300543b501dd5cda457f16.tar.gz .
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496$ tar -xzf zulip-58438c362f2eb0d5cc300543b501dd5cda457f16.tar.gz
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496$ ls
+zulip-58438c362f2eb0d5cc300543b501dd5cda457f16  zulip-58438c362f2eb0d5cc300543b501dd5cda457f16.tar.gz
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496$ cd zulip-58438c362f2eb0d5cc300543b501dd5cda457f16
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496/zulip-58438c362f2eb0d5cc300543b501dd5cda457f16$ ls
+CODE_OF_CONDUCT.md     README.md        confirmation    manage.py           puppet          static               tsconfig.json      zerver
+CONTRIBUTING.md        SECURITY.md      corporate       package.json        pyproject.toml  stubs                var                zilencer
+Dockerfile-postgresql  Vagrantfile      docs            pgroonga            requirements    stylelint.config.js  version.py         zproject
+LICENSE                analytics        frontend_tests  postcss.config.js   scripts         templates            webpack.config.ts
+NOTICE                 babel.config.js  locale          prettier.config.js  setup.cfg       tools                yarn.lock
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496/zulip-58438c362f2eb0d5cc300543b501dd5cda457f16$  cp /mnt/c/Users/V.Ashok/Downloads/claude-hfi ./claude-hfi
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496/zulip-58438c362f2eb0d5cc300543b501dd5cda457f16$  chmod +x claude-hfi
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496/zulip-58438c362f2eb0d5cc300543b501dd5cda457f16$ ls -l claude-hfi
+-rwxr-xr-x 1 laxman laxman 117416162 Feb 26 19:36 claude-hfi
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496/zulip-58438c362f2eb0d5cc300543b501dd5cda457f16$ ls
+CODE_OF_CONDUCT.md     README.md        claude-hfi      locale             prettier.config.js  setup.cfg            tools              yarn.lock
+CONTRIBUTING.md        SECURITY.md      confirmation    manage.py          puppet              static               tsconfig.json      zerver
+Dockerfile-postgresql  Vagrantfile      corporate       package.json       pyproject.toml      stubs                var                zilencer
+LICENSE                analytics        docs            pgroonga           requirements        stylelint.config.js  version.py         zproject
+NOTICE                 babel.config.js  frontend_tests  postcss.config.js  scripts             templates            webpack.config.ts
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496/zulip-58438c362f2eb0d5cc300543b501dd5cda457f16$ git init
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint:
+hint:   git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint:   git branch -m <name>
+Initialized empty Git repository in /home/laxman/zulip/20496/zulip-58438c362f2eb0d5cc300543b501dd5cda457f16/.git/
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496/zulip-58438c362f2eb0d5cc300543b501dd5cda457f16$ git add .
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496/zulip-58438c362f2eb0d5cc300543b501dd5cda457f16$ git commit -m "addd claude-hfi"
+[master (root-commit) 44cb22a] addd claude-hfi
+ 5558 files changed, 829465 insertions(+)
+
+
+.........................
+ create mode 100644 zproject/wsgi.py
+laxman@LAPTOP-D0BA5CIS:~/zulip/20496/zulip-58438c362f2eb0d5cc300543b501dd5cda457f16$ git status
+On branch master
+nothing to commit, working tree clean
