@@ -1,0 +1,83 @@
+PS C:\Users\V.Ashok> wsl
+laxman@LAPTOP-D0BA5CIS:/mnt/c/Users/V.Ashok$ cd ~
+laxman@LAPTOP-D0BA5CIS:~$ rm -rf ~/zulip/20496
+laxman@LAPTOP-D0BA5CIS:~$ rm -f /mnt/c/Users/V.Ashok/Downloads/zulip-58438c362f2eb0d5cc300543b501dd5cda457f16.tar.gz
+laxman@LAPTOP-D0BA5CIS:~$ rm -f /mnt/c/Users/V.Ashok/Downloads/claude-hfi
+laxman@LAPTOP-D0BA5CIS:~$ rm -rf ~/.cache
+find ~ -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null
+laxman@LAPTOP-D0BA5CIS:~$ rm -rf ~/.cache
+find ~ -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null
+laxman@LAPTOP-D0BA5CIS:~$ ls -la ~/zulip
+total 8
+drwxr-xr-x  2 laxman laxman 4096 Feb 27 09:45 .
+drwxr-x--- 12 laxman laxman 4096 Feb 27 09:46 ..
+laxman@LAPTOP-D0BA5CIS:~$ kls
+Command 'kls' not found, did you mean:
+  command 'rls' from snap rustup (1.28.2)
+  command 'fls' from deb sleuthkit (4.12.1+dfsg-1)
+  command 'ykls' from deb ykls (1.3.4-2ubuntu0.24.04.3)
+  command 'als' from deb atool (0.39.0-13)
+  command 'rls' from deb rustup (1.26.0-3)
+  command 'hls' from deb hfsutils (3.2.6-15build2)
+  command 'ols' from deb speech-tools (1:2.5.0-13)
+  command 'jls' from deb sleuthkit (4.12.1+dfsg-1)
+  command 'ils' from deb sleuthkit (4.12.1+dfsg-1)
+  command 'ls' from deb coreutils (9.4-3ubuntu6.1)
+  command 'bls' from deb bacula-sd (9.6.7-7)
+  command 'kas' from deb kas (4.0-1)
+  command 'ks' from deb qdl (1.0+git20230411.3b22df2-1)
+See 'snap info <snapname>' for additional versions.
+laxman@LAPTOP-D0BA5CIS:~$ ls
+flyway-5.2.4  flyway.tar.gz  marlin  pg_local  zulip
+laxman@LAPTOP-D0BA5CIS:~$ cd zulip
+laxman@LAPTOP-D0BA5CIS:~/zulip$ ls
+laxman@LAPTOP-D0BA5CIS:~/zulip$ find ~ -name "*zulip*" 2>/dev/null
+find ~ -name "*claude*" 2>/dev/null
+/home/laxman/zulip
+/home/laxman/.claude-hfi/projects/-home-laxman--cache-claude-hfi--home-laxman-zulip-20496-zulip-58438c362f2eb0d5cc300543b501dd5cda457f16-A
+/home/laxman/.claude-hfi/projects/-home-laxman-zulip-20496-zulip-58438c362f2eb0d5cc300543b501dd5cda457f16
+/home/laxman/.claude-hfi/projects/-home-laxman--cache-claude-hfi--home-laxman-zulip-20496-zulip-58438c362f2eb0d5cc300543b501dd5cda457f16-B
+/home/laxman/.local/share/claude
+/home/laxman/.local/bin/claude
+/home/laxman/.local/state/claude
+/home/laxman/.claude-hfi
+/home/laxman/.claude-hfi/projects/-home-laxman--cache-claude-hfi--home-laxman-marlin-mlflow-8893-mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d-B
+/home/laxman/.claude-hfi/projects/-home-laxman--cache-claude-hfi--home-laxman-marlin-mlflow-8893-mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d-A
+/home/laxman/.claude-hfi/projects/-home-laxman--cache-claude-hfi--home-laxman-zulip-20496-zulip-58438c362f2eb0d5cc300543b501dd5cda457f16-A
+/home/laxman/.claude-hfi/projects/-home-laxman--cache-claude-hfi--home-laxman-marlin-mlflow-4631-mlflow-6f61624f40596d03c5d384cbe7baf1ccdedb9f6d-A
+/home/laxman/.claude-hfi/projects/-home-laxman--cache-claude-hfi--home-laxman-zulip-20496-zulip-58438c362f2eb0d5cc300543b501dd5cda457f16-B
+/home/laxman/.claude-hfi/projects/-home-laxman--cache-claude-hfi--home-laxman-marlin-openFEC-4049-openFEC-14045922a9a894a8412fc72b1b6b7e31bff42801-A
+/home/laxman/.claude-hfi/projects/-home-laxman--cache-claude-hfi--home-laxman-marlin-openFEC-4049-openFEC-14045922a9a894a8412fc72b1b6b7e31bff42801-B
+/home/laxman/.claude-hfi/projects/-home-laxman--cache-claude-hfi--home-laxman-marlin-mlflow-4631-mlflow-6f61624f40596d03c5d384cbe7baf1ccdedb9f6d-B
+/home/laxman/.claude-hfi/.claude.json.backup
+/home/laxman/.claude-hfi/.claude.json.backup.1772182120380
+/home/laxman/.claude-hfi/.claude.json
+/home/laxman/.claude-hfi/.claude.json.backup.1772185269261
+/home/laxman/.claude-hfi/.claude.json.backup.1772181990289
+/home/laxman/.claude-hfi/.claude.json.backup.1772182056689
+/home/laxman/.claude-hfi/.claude.json.backup.1772181923472
+/home/laxman/marlin/openFEC/4049/openFEC-14045922a9a894a8412fc72b1b6b7e31bff42801/claude-hfi
+laxman@LAPTOP-D0BA5CIS:~/zulip$ cd ~
+
+# Remove Claude hidden directory
+rm -rf ~/.claude-hfi
+
+# Remove Claude local share data
+rm -rf ~/.local/share/claude
+
+# Remove Claude state data
+rm -rf ~/.local/state/claude
+
+# Remove Claude binary
+rm -f ~/.local/bin/claude
+
+# Remove any remaining claude-hfi files anywhere in home
+find ~ -name "*claude*" -exec rm -rf {} + 2>/dev/null
+laxman@LAPTOP-D0BA5CIS:~$ cd ~
+rm -rf ~/.claude-hfi
+rm -rf ~/.local/share/claude
+rm -rf ~/.local/state/claude
+rm -f ~/.local/bin/claude
+find ~ -name "*claude*" -exec rm -rf {} + 2>/dev/null
+laxman@LAPTOP-D0BA5CIS:~$ rm -f ~/marlin/openFEC/4049/openFEC-*/claude-hfi
+laxman@LAPTOP-D0BA5CIS:~$ find ~ -name "*claude*" 2>/dev/null
