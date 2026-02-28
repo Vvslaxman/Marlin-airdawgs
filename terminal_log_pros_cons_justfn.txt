@@ -1,0 +1,1862 @@
+now im doing next another task.
+This is gonna be bit different from what we were previously doing.
+I'll provide you desired both files git diff kind of  changes left and right side both.
+1. tests/data/test_minute_bars.py
+1a. left side(before changing) code:
+####
+       with self.assertRaises(BcolzMinuteOverlappingData):
+            self.writer.write_sid(sid, data)
+
+    def test_write_multiple_sids(self):
+        """
+        Test writing multiple sids.
+                Timestamp('2015-11-30 21:01:00', tz='UTC'),
+                'open'),
+            600)
+
+####
+
+1b. right side(after changing) desired code:
+####
+        with self.assertRaises(BcolzMinuteOverlappingData):
+            self.writer.write_sid(sid, data)
+
+    def test_append_to_same_day(self):
+        """
+        Test writing data with the same date as existing data in our file.
+        """
+        sid = 1
+
+        first_minute = self.market_opens[TEST_CALENDAR_START]
+        data = DataFrame(
+            data={
+                'open': [10.0],
+                'high': [20.0],
+                'low': [30.0],
+                'close': [40.0],
+                'volume': [50.0]
+            },
+            index=[first_minute])
+        self.writer.write_sid(sid, data)
+
+        # Write data in the same day as the previous minute
+        second_minute = first_minute + Timedelta(minutes=1)
+        new_data = DataFrame(
+            data={
+                'open': [5.0],
+                'high': [10.0],
+                'low': [3.0],
+                'close': [7.0],
+                'volume': [10.0]
+            },
+            index=[second_minute])
+        self.writer.write_sid(sid, new_data)
+
+        open_price = self.reader.get_value(sid, second_minute, 'open')
+        self.assertEquals(5.0, open_price)
+        high_price = self.reader.get_value(sid, second_minute, 'high')
+        self.assertEquals(10.0, high_price)
+        low_price = self.reader.get_value(sid, second_minute, 'low')
+        self.assertEquals(3.0, low_price)
+        close_price = self.reader.get_value(sid, second_minute, 'close')
+        self.assertEquals(7.0, close_price)
+        volume_price = self.reader.get_value(sid, second_minute, 'volume')
+        self.assertEquals(10.0, volume_price)
+
+    def test_write_multiple_sids(self):
+        """
+        Test writing multiple sids.
+                Timestamp('2015-11-30 21:01:00', tz='UTC'),
+                'open'),
+            600)
+
+    def test_set_sid_attrs(self):
+        """Confirm that we can set the attributes of a sid's file correctly.
+        """
+
+        sid = 1
+        start_day = Timestamp('2015-11-27', tz='UTC')
+        end_day = Timestamp('2015-06-02', tz='UTC')
+        attrs = {
+            'start_day': start_day.value / int(1e9),
+            'end_day': end_day.value / int(1e9),
+            'factor': 100,
+        }
+
+        # Write the attributes
+        self.writer.set_sid_attrs(sid, **attrs)
+        # Read the attributes
+        for k, v in attrs.items():
+            self.assertEqual(self.reader.get_sid_attr(sid, k), v)
+####
+
+2. zipline/data/minute_bars.py file code:
+
+2a. left side (before changes) code:
+####
+        assert new_last_date == date, "new_last_date={0} != date={1}".format(
+            new_last_date, date)
+
+    def write(self, data, show_progress=False):
+        """Write a stream of minute data.
+
+        tds = self._trading_days
+        input_first_day = pd.Timestamp(dts[0].astype('datetime64[D]'),
+                                       tz='UTC')
+        input_last_day = pd.Timestamp(dts[-1].astype('datetime64[D]'),
+                                      tz='UTC')
+
+        last_date = self.last_date_in_output_for_sid(sid)
+
+        if last_date >= input_first_day:
+            raise BcolzMinuteOverlappingData(dedent("""
+            Data with last_date={0} already includes input start={1} for
+            sid={2}""".strip()).format(last_date, input_first_day, sid))
+
+        day_before_input = input_first_day - tds.freq
+
+        self.pad(sid, day_before_input)
+        table = self._ensure_ctable(sid)
+
+        days_to_write = tds[tds.slice_indexer(start=input_first_day,
+                                              end=input_last_day)]
+
+        minutes_count = len(days_to_write) * self._minutes_per_day
+
+        all_minutes = self._minute_index
+        indexer = all_minutes.slice_indexer(start=days_to_write[0])
+        all_minutes_in_window = all_minutes[indexer]
+
+        open_col = np.zeros(minutes_count, dtype=np.uint32)
+        high_col = np.zeros(minutes_count, dtype=np.uint32)
+
+        return carray
+
+    def get_value(self, sid, dt, field):
+        """
+        Retrieve the pricing info for the given sid, dt, and field.
+            self._last_get_value_dt_value = dt.value
+            self._last_get_value_dt_position = minute_pos
+
+        value = self._open_minute_file(field, sid)[minute_pos]
+        if value == 0:
+            if field == 'volume':
+                return 0
+####
+
+2b. right side (after changes) code:
+####
+        assert new_last_date == date, "new_last_date={0} != date={1}".format(
+            new_last_date, date)
+
+    def set_sid_attrs(self, sid, **kwargs):Collapse commentComment on line 
+        """Write all the supplied kwargs as attributes of the sid's file.
+        """
+        table = self._ensure_ctable(sid)
+        for k, v in kwargs.items():
+            table.attrs[k] = v
+
+    def write(self, data, show_progress=False):
+        """Write a stream of minute data.
+
+        tds = self._trading_days
+        input_first_day = pd.Timestamp(dts[0].astype('datetime64[D]'),
+                                       tz='UTC')
+
+        last_date = self.last_date_in_output_for_sid(sid)
+
+        day_before_input = input_first_day - tds.freq
+
+        self.pad(sid, day_before_input)
+        table = self._ensure_ctable(sid)
+
+        # Get the number of minutes already recorded in this sid's ctable
+        num_rec_mins = table.size
+
+        all_minutes = self._minute_index
+        # Get the latest minute we wish to write to the ctable
+        last_minute_to_write = dts[-1]
+
+        # In the event that we've already written some minutely data to the
+        # ctable, guard against overwritting that data.
+        if num_rec_mins > 0:
+            last_recorded_minute = np.datetime64(all_minutes[num_rec_mins - 1])
+            if last_minute_to_write <= last_recorded_minute:
+                raise BcolzMinuteOverlappingData(dedent("""
+                Data with last_date={0} already includes input start={1} for
+                sid={2}""".strip()).format(last_date, input_first_day, sid))
+
+        latest_min_count = all_minutes.get_loc(last_minute_to_write)
+
+        # Get all the minutes we wish to write (all market minutes after the
+        # latest currently written, up to and including last_minute_to_write)
+        all_minutes_in_window = all_minutes[num_rec_mins:latest_min_count + 1]
+
+        minutes_count = all_minutes_in_window.size
+
+        open_col = np.zeros(minutes_count, dtype=np.uint32)
+        high_col = np.zeros(minutes_count, dtype=np.uint32)
+
+        return carray
+
+    def get_sid_attr(self, sid, name):
+        sid_subdir = _sid_subdir_path(sid)
+        sid_path = os.path.join(self._rootdir, sid_subdir)
+        attrs = bcolz.attrs.attrs(sid_path, 'r')
+        try:
+            return attrs[name]
+        except KeyError:
+            return None
+
+    def get_value(self, sid, dt, field):
+        """
+        Retrieve the pricing info for the given sid, dt, and field.
+            self._last_get_value_dt_value = dt.value
+            self._last_get_value_dt_position = minute_pos
+
+        try:
+            value = self._open_minute_file(field, sid)[minute_pos]
+        except IndexError:
+            value = 0
+        if value == 0:
+            if field == 'volume':
+                return 0
+####
+
+now next im going to provide the terminal logs outcome of both model A and model B this time because the original desired final goal both files are very lengthy and contains as follows; tests/data/test_minute_bars.py (1250 lines) and zipline/data/minute_bars.py (1416 lines). So to make the task easy for you, I'm helping you with the terminal log output which is even better for you to generate model A pros model A cons, model B pros model B cons and single winner justification and also even for seven ratings multi axisjustifications too:
+1. Logic & Correctness
+2. Naming & Clarity
+3. Organization & Modularity
+4. Interface Design
+5. Error Handling & Robustness
+6. Comments & Documentation
+7. Ready for Review/Merge
+
+Rate a score on a scale of 1 to 10 for above mentioned 7 points.
+
+Here's model A terminal log output:
+####
+❯ The goal is to refine the minute bar writing logic in Zipline’s
+  `BcolzMinuteBarWriter`, which currently blocks any additional writes for a
+  trading day once data exists, making it overly restrictive. The objective
+  is to allow appending new minute-level OHLCV data within the same trading
+  day, provided no previously recorded minutes are overwritten. Overlap
+  detection should operate at the minute level rather than the day level,
+  allowing writes of new minutes that strictly extend beyond the last
+  recorded minute for a given `sid`, while still raising
+  `BcolzMinuteOverlappingData` if an existing minute would be overwritten.
+  Each `sid` should independently track its own latest written minute,
+  eliminating the need for synchronization across sids. Specific tasks
+  include updating `BcolzMinuteBarWriter` to determine the last recorded
+  minute for each `sid`, compare incoming timestamps, and append only valid
+  new minutes while preserving padding and indexing logic; removing implicit
+  end timestamp synchronization across sids; introducing sid-level metadata
+  support with `set_sid_attrs` and `get_sid_attr`, returning `None` for
+  non-existent attributes; and adding unit tests to verify same-day appends,
+  overlapping write protection, multi-sid independence, and attribute
+  persistence. These changes must maintain existing behavior outside this
+  refinement, keep overlap protection strict, and remain minimal and
+  localized to the minute bar writer, reader, and associated tests without
+  introducing unrelated refactors.
+
+● I'll start by exploring the codebase to understand the current implementation
+  before planning the changes.
+
+● Explore(Explore minute bar writer code)
+  ⎿  Done (13 tool uses · 48.1k tokens · 1m 3s)
+  (ctrl+o to expand)
+
+● Now let me read the key files I'll need to modify.
+
+● Read 2 files (ctrl+o to expand)
+  ⎿  API Error: Claude's response exceeded the 32769 output token maximum. To
+     configure this behavior, set the CLAUDE_CODE_MAX_OUTPUT_TOKENS environment
+     variable.
+
+● I have a thorough understanding of the codebase now. Let me update my todo list
+  and start implementing.
+
+● First, I'll add the set_sid_attrs and get_sid_attr methods to
+  BcolzMinuteBarWriter.
+
+● Update(zipline/data/minute_bars.py)
+  ⎿  Added 46 lines
+      346              return pd.NaT
+      347          return self._trading_days[num_days - 1]
+      348
+      349 +    def set_sid_attrs(self, sid, **kwargs):
+      350 +        """
+      351 +        Set metadata attributes for the given sid.
+      352 +
+      353 +        Parameters
+      354 +        ----------
+      355 +        sid : int
+      356 +            Asset identifier.
+      357 +        **kwargs
+      358 +            Key-value pairs to store as metadata for the sid.
+      359 +        """
+      360 +        sidpath = self.sidpath(sid)
+      361 +        if not os.path.exists(sidpath):
+      362 +            os.makedirs(sidpath)
+      363 +        path = os.path.join(sidpath, 'sid_attrs.json')
+      364 +        existing = {}
+      365 +        if os.path.exists(path):
+      366 +            with open(path) as f:
+      367 +                existing = json.load(f)
+      368 +        existing.update(kwargs)
+      369 +        with open(path, 'w') as f:
+      370 +            json.dump(existing, f)
+      371 +
+      372 +    def get_sid_attr(self, sid, name):
+      373 +        """
+      374 +        Get a metadata attribute for the given sid.
+      375 +
+      376 +        Parameters
+      377 +        ----------
+      378 +        sid : int
+      379 +            Asset identifier.
+      380 +        name : str
+      381 +            The attribute name to retrieve.
+      382 +
+      383 +        Returns
+      384 +        -------
+      385 +        object or None
+      386 +            The attribute value, or None if the attribute does
+          +not exist.
+      387 +        """
+      388 +        path = os.path.join(self.sidpath(sid),
+          +'sid_attrs.json')
+      389 +        if not os.path.exists(path):
+      390 +            return None
+      391 +        with open(path) as f:
+      392 +            attrs = json.load(f)
+      393 +        return attrs.get(name, None)
+      394 +
+      395      def _init_ctable(self, path):
+      396          """
+      397          Create empty ctable for given path.
+
+● Now I'll replace the _write_cols method with the new minute-level overlap
+  detection and same-day append logic.
+
+● Update(zipline/data/minute_bars.py)
+  ⎿  Added 151 lines, removed 35 lines
+      610
+      611          last_date = self.last_date_in_output_for_sid(sid)
+      612
+      613 -        if last_date >= input_first_day:
+      613 +        # Minute-level overlap check using per-sid last_minute
+          +tracking.
+      614 +        last_minute = self.get_sid_attr(sid, 'last_minute')
+      615 +        if last_minute is not None:
+      616 +            last_minute_ts = pd.Timestamp(last_minute,
+          +tz='UTC')
+      617 +            first_input_minute = pd.Timestamp(
+      618 +                dts[0].astype('datetime64[ns]'), tz='UTC')
+      619 +            if first_input_minute <= last_minute_ts:
+      620 +                raise BcolzMinuteOverlappingData(dedent("""
+      621 +                Data with last_minute={0} already includes
+          +input
+      622 +                start={1} for sid={2}""".strip()).format(
+      623 +                    last_minute_ts, first_input_minute, sid))
+      624 +        elif last_date >= input_first_day:
+      625              raise BcolzMinuteOverlappingData(dedent("""
+      626              Data with last_date={0} already includes input
+           start={1} for
+      627              sid={2}""".strip()).format(last_date,
+           input_first_day, sid))
+      628
+      629 -        day_before_input = input_first_day - tds.freq
+      629 +        ohlc_ratio = self._ohlc_ratio
+      630
+      631 -        self.pad(sid, day_before_input)
+      632 -        table = self._ensure_ctable(sid)
+      631 +        def convert_col(col):
+      632 +            """Adapt float column into a uint32 column.
+      633 +            """
+      634 +            return (np.nan_to_num(col) *
+          +ohlc_ratio).astype(np.uint32)
+      635
+      636 -        days_to_write =
+          -tds[tds.slice_indexer(start=input_first_day,
+      637 -
+          -end=input_last_day)]
+      636 +        all_minutes = self._minute_index
+      637
+      638 -        minutes_count = len(days_to_write) *
+          -self._minutes_per_day
+      638 +        has_existing_data = (not pd.isnull(last_date) and
+      639 +                             last_date >= input_first_day)
+      640
+      641 -        all_minutes = self._minute_index
+      642 -        indexer =
+          -all_minutes.slice_indexer(start=days_to_write[0])
+      643 -        all_minutes_in_window = all_minutes[indexer]
+      641 +        if has_existing_data:
+      642 +            # Same-day (or existing-day) append path.
+      643 +            # Some input dts fall on days already allocated in
+          +the ctable.
+      644 +            dts_day_values = dts.astype('datetime64[D]')
+      645 +            last_date_value =
+          +last_date.asm8.astype('datetime64[D]')
+      646 +            allocated_mask = dts_day_values <= last_date_value
+      647
+      648 -        open_col = np.zeros(minutes_count, dtype=np.uint32)
+      649 -        high_col = np.zeros(minutes_count, dtype=np.uint32)
+      650 -        low_col = np.zeros(minutes_count, dtype=np.uint32)
+      651 -        close_col = np.zeros(minutes_count, dtype=np.uint32)
+      652 -        vol_col = np.zeros(minutes_count, dtype=np.uint32)
+      648 +            if allocated_mask.any():
+      649 +                alloc_dts = dts[allocated_mask]
+      650 +                alloc_indices = np.where(allocated_mask)[0]
+      651
+      652 -        dt_ixs = np.searchsorted(all_minutes_in_window.values,
+      653 -                                 dts.astype('datetime64[ns]'))
+      652 +                alloc_days = np.unique(
+      653 +                    alloc_dts.astype('datetime64[D]'))
+      654 +                for day_val in alloc_days:
+      655 +                    day_ts = pd.Timestamp(day_val, tz='UTC')
+      656 +                    day_idx = tds.get_loc(day_ts)
+      657 +                    day_start = day_idx * self._minutes_per_day
+      658 +                    day_end = day_start + self._minutes_per_day
+      659
+      660 -        ohlc_ratio = self._ohlc_ratio
+      660 +                    day_mask = (
+      661 +                        alloc_dts.astype('datetime64[D]') ==
+          +day_val)
+      662 +                    day_data_indices = alloc_indices[day_mask]
+      663
+      664 -        def convert_col(col):
+      665 -            """Adapt float column into a uint32 column.
+      666 -            """
+      667 -            return (np.nan_to_num(col) *
+          -ohlc_ratio).astype(np.uint32)
+      664 +                    day_minutes =
+          +all_minutes[day_start:day_end]
+      665 +                    offsets = np.searchsorted(
+      666 +                        day_minutes.values,
+      667 +
+          +alloc_dts[day_mask].astype('datetime64[ns]'))
+      668
+      669 -        open_col[dt_ixs] = convert_col(cols['open'])
+      670 -        high_col[dt_ixs] = convert_col(cols['high'])
+      671 -        low_col[dt_ixs] = convert_col(cols['low'])
+      672 -        close_col[dt_ixs] = convert_col(cols['close'])
+      673 -        vol_col[dt_ixs] = cols['volume'].astype(np.uint32)
+      669 +                    for col_name in ('open', 'high', 'low',
+          +'close'):
+      670 +                        existing = np.array(
+      671 +                            table[col_name][day_start:day_end])
+      672 +                        existing[offsets] = convert_col(
+      673 +                            cols[col_name][day_data_indices])
+      674 +                        table[col_name][day_start:day_end] =
+          +existing
+      675
+      676 -        table.append([
+      677 -            open_col,
+      678 -            high_col,
+      679 -            low_col,
+      680 -            close_col,
+      681 -            vol_col
+      682 -        ])
+      683 -        table.flush()
+      676 +                    existing_vol = np.array(
+      677 +                        table['volume'][day_start:day_end])
+      678 +                    existing_vol[offsets] = (
+      679 +                        cols['volume'][day_data_indices]
+      680 +                        .astype(np.uint32))
+      681 +                    table['volume'][day_start:day_end] =
+          +existing_vol
+      682
+      683 +                table.flush()
+      684
+      685 +            # Append any remaining new-day data.
+      686 +            new_mask = ~allocated_mask
+      687 +            if new_mask.any():
+      688 +                new_dts = dts[new_mask]
+      689 +                new_cols = {k: v[new_mask] for k, v in
+          +cols.items()}
+      690 +                new_first_day = pd.Timestamp(
+      691 +                    new_dts[0].astype('datetime64[D]'),
+          +tz='UTC')
+      692 +                new_last_day = pd.Timestamp(
+      693 +                    new_dts[-1].astype('datetime64[D]'),
+          +tz='UTC')
+      694 +
+      695 +                day_before_new = new_first_day - tds.freq
+      696 +                self.pad(sid, day_before_new)
+      697 +                table = self._ensure_ctable(sid)
+      698 +
+      699 +                days_to_write = tds[tds.slice_indexer(
+      700 +                    start=new_first_day, end=new_last_day)]
+      701 +                minutes_count = (
+      702 +                    len(days_to_write) * self._minutes_per_day)
+      703 +
+      704 +                indexer = all_minutes.slice_indexer(
+      705 +                    start=days_to_write[0])
+      706 +                all_minutes_in_window = all_minutes[indexer]
+      707 +
+      708 +                open_col = np.zeros(minutes_count,
+          +dtype=np.uint32)
+      709 +                high_col = np.zeros(minutes_count,
+          +dtype=np.uint32)
+      710 +                low_col = np.zeros(minutes_count,
+          +dtype=np.uint32)
+      711 +                close_col = np.zeros(minutes_count,
+          +dtype=np.uint32)
+      712 +                vol_col = np.zeros(minutes_count,
+          +dtype=np.uint32)
+      713 +
+      714 +                dt_ixs = np.searchsorted(
+      715 +                    all_minutes_in_window.values,
+      716 +                    new_dts.astype('datetime64[ns]'))
+      717 +
+      718 +                open_col[dt_ixs] =
+          +convert_col(new_cols['open'])
+      719 +                high_col[dt_ixs] =
+          +convert_col(new_cols['high'])
+      720 +                low_col[dt_ixs] = convert_col(new_cols['low'])
+      721 +                close_col[dt_ixs] =
+          +convert_col(new_cols['close'])
+      722 +                vol_col[dt_ixs] = (
+      723 +                    new_cols['volume'].astype(np.uint32))
+      724 +
+      725 +                table.append([
+      726 +                    open_col,
+      727 +                    high_col,
+      728 +                    low_col,
+      729 +                    close_col,
+      730 +                    vol_col
+      731 +                ])
+      732 +                table.flush()
+      733 +        else:
+      734 +            # All new days - original append logic.
+      735 +            day_before_input = input_first_day - tds.freq
+      736 +
+      737 +            self.pad(sid, day_before_input)
+      738 +            table = self._ensure_ctable(sid)
+      739 +
+      740 +            days_to_write = tds[tds.slice_indexer(
+      741 +                start=input_first_day, end=input_last_day)]
+      742 +
+      743 +            minutes_count = (
+      744 +                len(days_to_write) * self._minutes_per_day)
+      745 +
+      746 +            indexer = all_minutes.slice_indexer(
+      747 +                start=days_to_write[0])
+      748 +            all_minutes_in_window = all_minutes[indexer]
+      749 +
+      750 +            open_col = np.zeros(minutes_count, dtype=np.uint32)
+      751 +            high_col = np.zeros(minutes_count, dtype=np.uint32)
+      752 +            low_col = np.zeros(minutes_count, dtype=np.uint32)
+      753 +            close_col = np.zeros(minutes_count,
+          +dtype=np.uint32)
+      754 +            vol_col = np.zeros(minutes_count, dtype=np.uint32)
+      755 +
+      756 +            dt_ixs =
+          +np.searchsorted(all_minutes_in_window.values,
+      757 +
+          +dts.astype('datetime64[ns]'))
+      758 +
+      759 +            open_col[dt_ixs] = convert_col(cols['open'])
+      760 +            high_col[dt_ixs] = convert_col(cols['high'])
+      761 +            low_col[dt_ixs] = convert_col(cols['low'])
+      762 +            close_col[dt_ixs] = convert_col(cols['close'])
+      763 +            vol_col[dt_ixs] = cols['volume'].astype(np.uint32)
+      764 +
+      765 +            table.append([
+      766 +                open_col,
+      767 +                high_col,
+      768 +                low_col,
+      769 +                close_col,
+      770 +                vol_col
+      771 +            ])
+      772 +            table.flush()
+      773 +
+      774 +        # Track last written minute per-sid.
+      775 +        last_minute_written = pd.Timestamp(
+      776 +            dts[-1].astype('datetime64[ns]'), tz='UTC')
+      777 +        self.set_sid_attrs(sid,
+          +last_minute=str(last_minute_written))
+      778 +
+      779 +
+      780  class BcolzMinuteBarReader(object):
+      781      """
+      782      Reader for data written by BcolzMinuteBarWriter
+
+● Now let me add the unit tests. I'll read the end of the test file to find the
+  exact insertion point.
+
+● Read 1 file (ctrl+o to expand)
+
+● Update(tests/data/test_minute_bars.py)
+  ⎿  Added 201 lines
+       806                  Timestamp('2015-11-30 21:01:00', tz='UTC'),
+       807                  'open'),
+       808              600)
+       809 +
+       810 +    def test_same_day_append(self):
+       811 +        """
+       812 +        Test that new minutes can be appended within the same
+           +trading day,
+       813 +        provided they strictly follow the last recorded
+           +minute.
+       814 +        """
+       815 +        sid = 1
+       816 +        minute_0 = self.market_opens[self.test_calendar_start]
+       817 +        minute_1 = minute_0 + timedelta(minutes=1)
+       818 +
+       819 +        # First write: minutes 0-1
+       820 +        data1 = DataFrame(
+       821 +            data={
+       822 +                'open': [10.0, 11.0],
+       823 +                'high': [20.0, 21.0],
+       824 +                'low': [30.0, 31.0],
+       825 +                'close': [40.0, 41.0],
+       826 +                'volume': [50.0, 51.0]
+       827 +            },
+       828 +            index=[minute_0, minute_1])
+       829 +        self.writer.write_sid(sid, data1)
+       830 +
+       831 +        # Second write: minutes 2-3 on the same day
+       832 +        minute_2 = minute_0 + timedelta(minutes=2)
+       833 +        minute_3 = minute_0 + timedelta(minutes=3)
+       834 +        data2 = DataFrame(
+       835 +            data={
+       836 +                'open': [12.0, 13.0],
+       837 +                'high': [22.0, 23.0],
+       838 +                'low': [32.0, 33.0],
+       839 +                'close': [42.0, 43.0],
+       840 +                'volume': [52.0, 53.0]
+       841 +            },
+       842 +            index=[minute_2, minute_3])
+       843 +        self.writer.write_sid(sid, data2)
+       844 +
+       845 +        # Use fresh reader to avoid caching issues.
+       846 +        reader = BcolzMinuteBarReader(self.dest)
+       847 +
+       848 +        # Verify first batch is preserved.
+       849 +        self.assertEquals(10.0, reader.get_value(sid,
+           +minute_0, 'open'))
+       850 +        self.assertEquals(20.0, reader.get_value(sid,
+           +minute_0, 'high'))
+       851 +        self.assertEquals(30.0, reader.get_value(sid,
+           +minute_0, 'low'))
+       852 +        self.assertEquals(40.0, reader.get_value(sid,
+           +minute_0, 'close'))
+       853 +        self.assertEquals(50.0, reader.get_value(sid,
+           +minute_0, 'volume'))
+       854 +
+       855 +        # Verify second batch is written correctly.
+       856 +        self.assertEquals(12.0, reader.get_value(sid,
+           +minute_2, 'open'))
+       857 +        self.assertEquals(22.0, reader.get_value(sid,
+           +minute_2, 'high'))
+       858 +        self.assertEquals(32.0, reader.get_value(sid,
+           +minute_2, 'low'))
+       859 +        self.assertEquals(42.0, reader.get_value(sid,
+           +minute_2, 'close'))
+       860 +        self.assertEquals(52.0, reader.get_value(sid,
+           +minute_2, 'volume'))
+       861 +
+       862 +        self.assertEquals(13.0, reader.get_value(sid,
+           +minute_3, 'open'))
+       863 +        self.assertEquals(53.0, reader.get_value(sid,
+           +minute_3, 'volume'))
+       864 +
+       865 +    def test_same_day_append_overlapping_raises(self):
+       866 +        """
+       867 +        Test that writing minutes that overlap with
+           +already-written minutes
+       868 +        within the same trading day raises
+           +BcolzMinuteOverlappingData.
+       869 +        """
+       870 +        sid = 1
+       871 +        minute_0 = self.market_opens[self.test_calendar_start]
+       872 +        minute_1 = minute_0 + timedelta(minutes=1)
+       873 +
+       874 +        data1 = DataFrame(
+       875 +            data={
+       876 +                'open': [10.0, 11.0],
+       877 +                'high': [20.0, 21.0],
+       878 +                'low': [30.0, 31.0],
+       879 +                'close': [40.0, 41.0],
+       880 +                'volume': [50.0, 51.0]
+       881 +            },
+       882 +            index=[minute_0, minute_1])
+       883 +        self.writer.write_sid(sid, data1)
+       884 +
+       885 +        # Try to write starting at minute_1 (overlaps last
+           +written minute).
+       886 +        minute_2 = minute_0 + timedelta(minutes=2)
+       887 +        data2 = DataFrame(
+       888 +            data={
+       889 +                'open': [11.5, 12.0],
+       890 +                'high': [21.5, 22.0],
+       891 +                'low': [31.5, 32.0],
+       892 +                'close': [41.5, 42.0],
+       893 +                'volume': [51.5, 52.0]
+       894 +            },
+       895 +            index=[minute_1, minute_2])
+       896 +
+       897 +        with self.assertRaises(BcolzMinuteOverlappingData):
+       898 +            self.writer.write_sid(sid, data2)
+       899 +
+       900 +    def test_multi_sid_same_day_independence(self):
+       901 +        """
+       902 +        Test that same-day appends for different sids are
+           +tracked
+       903 +        independently, with no cross-sid synchronization.
+       904 +        """
+       905 +        minute_0 = self.market_opens[self.test_calendar_start]
+       906 +        minute_1 = minute_0 + timedelta(minutes=1)
+       907 +        minute_2 = minute_0 + timedelta(minutes=2)
+       908 +        minute_3 = minute_0 + timedelta(minutes=3)
+       909 +
+       910 +        # Sid 1: write minutes 0-1
+       911 +        data1_sid1 = DataFrame(
+       912 +            data={
+       913 +                'open': [10.0, 11.0],
+       914 +                'high': [20.0, 21.0],
+       915 +                'low': [30.0, 31.0],
+       916 +                'close': [40.0, 41.0],
+       917 +                'volume': [50.0, 51.0]
+       918 +            },
+       919 +            index=[minute_0, minute_1])
+       920 +        self.writer.write_sid(1, data1_sid1)
+       921 +
+       922 +        # Sid 2: write minutes 0-2 (different range, same day)
+       923 +        data1_sid2 = DataFrame(
+       924 +            data={
+       925 +                'open': [100.0, 101.0, 102.0],
+       926 +                'high': [200.0, 201.0, 202.0],
+       927 +                'low': [300.0, 301.0, 302.0],
+       928 +                'close': [400.0, 401.0, 402.0],
+       929 +                'volume': [500.0, 501.0, 502.0]
+       930 +            },
+       931 +            index=[minute_0, minute_1, minute_2])
+       932 +        self.writer.write_sid(2, data1_sid2)
+       933 +
+       934 +        # Sid 1: append minutes 2-3 (independent of sid 2's
+           +last minute)
+       935 +        data2_sid1 = DataFrame(
+       936 +            data={
+       937 +                'open': [12.0, 13.0],
+       938 +                'high': [22.0, 23.0],
+       939 +                'low': [32.0, 33.0],
+       940 +                'close': [42.0, 43.0],
+       941 +                'volume': [52.0, 53.0]
+       942 +            },
+       943 +            index=[minute_2, minute_3])
+       944 +        self.writer.write_sid(1, data2_sid1)
+       945 +
+       946 +        # Sid 2: append minute 3 (independent of sid 1's last
+           +minute)
+       947 +        data2_sid2 = DataFrame(
+       948 +            data={
+       949 +                'open': [103.0],
+       950 +                'high': [203.0],
+       951 +                'low': [303.0],
+       952 +                'close': [403.0],
+       953 +                'volume': [503.0]
+       954 +            },
+       955 +            index=[minute_3])
+       956 +        self.writer.write_sid(2, data2_sid2)
+       957 +
+       958 +        reader = BcolzMinuteBarReader(self.dest)
+       959 +
+       960 +        # Verify sid 1 data
+       961 +        self.assertEquals(10.0, reader.get_value(1, minute_0,
+           +'open'))
+       962 +        self.assertEquals(11.0, reader.get_value(1, minute_1,
+           +'open'))
+       963 +        self.assertEquals(12.0, reader.get_value(1, minute_2,
+           +'open'))
+       964 +        self.assertEquals(13.0, reader.get_value(1, minute_3,
+           +'open'))
+       965 +
+       966 +        # Verify sid 2 data
+       967 +        self.assertEquals(100.0, reader.get_value(2, minute_0,
+           + 'open'))
+       968 +        self.assertEquals(101.0, reader.get_value(2, minute_1,
+           + 'open'))
+       969 +        self.assertEquals(102.0, reader.get_value(2, minute_2,
+           + 'open'))
+       970 +        self.assertEquals(103.0, reader.get_value(2, minute_3,
+           + 'open'))
+       971 +
+       972 +    def test_sid_attr_persistence(self):
+       973 +        """
+       974 +        Test set_sid_attrs and get_sid_attr for per-sid
+           +metadata,
+       975 +        including that non-existent attributes return None.
+       976 +        """
+       977 +        sid = 1
+       978 +
+       979 +        # Before any write, get_sid_attr should return None.
+       980 +        self.assertIsNone(self.writer.get_sid_attr(sid,
+           +'last_minute'))
+       981 +        self.assertIsNone(self.writer.get_sid_attr(sid,
+           +'nonexistent'))
+       982 +
+       983 +        # Write some data to create the sid's ctable.
+       984 +        minute = self.market_opens[self.test_calendar_start]
+       985 +        data = DataFrame(
+       986 +            data={
+       987 +                'open': [10.0],
+       988 +                'high': [20.0],
+       989 +                'low': [30.0],
+       990 +                'close': [40.0],
+       991 +                'volume': [50.0]
+       992 +            },
+       993 +            index=[minute])
+       994 +        self.writer.write_sid(sid, data)
+       995 +
+       996 +        # After write, last_minute should be set
+           +automatically.
+       997 +        last_minute = self.writer.get_sid_attr(sid,
+           +'last_minute')
+       998 +        self.assertIsNotNone(last_minute)
+       999 +
+      1000 +        # Set custom attributes.
+      1001 +        self.writer.set_sid_attrs(sid,
+           +custom_key='custom_value')
+      1002 +        self.assertEquals('custom_value',
+      1003 +                          self.writer.get_sid_attr(sid,
+           +'custom_key'))
+      1004 +
+      1005 +        # Previously set attrs should still be accessible.
+      1006 +        self.assertIsNotNone(self.writer.get_sid_attr(sid,
+           +'last_minute'))
+      1007 +
+      1008 +        # Non-existent attr should return None.
+      1009 +        self.assertIsNone(self.writer.get_sid_attr(sid,
+           +'nonexistent'))
+
+● Now let me run the tests to verify everything works.
+
+● Searched for 1 pattern, read 1 file (ctrl+o to expand)
+
+● Bash(ls -la setup.py setup.cfg pyproject.toml 2>/dev/null; pip3 list 2>/dev/null
+       | grep -i -E "zipline|bcolz|pandas|numpy" 2>/dev/null; conda list
+      2>/dev/null | head…)
+  ⎿  -rw-r--r-- 1 laxman laxman  478 Feb 28 17:54 setup.cfg
+     -rw-r--r-- 1 laxman laxman 9640 Feb 28 17:54 setup.py
+     numpy                              1.26.4
+     pandas                             2.3.3
+
+● Bash(pip3 list 2>/dev/null | grep -i -E "bcolz|testfix|interval|cachetools")
+  ⎿  cachetools                         6.2.6
+
+● Bash(pip3 install bcolz-zipline testfixtures intervaltree 2>&1 | tail -20)
+  ⎿  error: externally-managed-environment
+
+     × This environment is externally managed
+     … +17 lines (ctrl+o to expand)
+
+● Bash(python3 -m venv /tmp/zipline_venv && /tmp/zipline_venv/bin/pip install
+      bcolz-zipline testfixtures intervaltree cachetools numpy pandas 2>&1 | tail
+      -10)
+  ⎿  Downloading pandas-3.0.1-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_2
+     8_x86_64.whl (10.9 MB)
+        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.9/10.9 MB 8.5 MB/s eta 0:
+     … +14 lines (ctrl+o to expand)
+
+● Bash(/tmp/zipline_venv/bin/pip install -e . 2>&1 | tail -10)
+  ⎿        [end of output]
+
+       note: This error originates from a subprocess, and is likely not a pro
+     … +9 lines (ctrl+o to expand)
+
+● Bash(/tmp/zipline_venv/bin/pip install -e . 2>&1 | head -30)
+  ⎿  Obtaining file:///home/laxman/.cache/claude-hfi/-home-laxman-marlin-zipl
+     ine-1198-zipline-784d5f4a16e4c0dadbab5af4c4ea0769de37fc6a/A
+       Installing build dependencies: started
+     … +28 lines (ctrl+o to expand)
+
+● The editable install won't work with this older project structure. Let me try
+  running the tests directly with PYTHONPATH set.
+
+● Bash(PYTHONPATH=. /tmp/zipline_venv/bin/python -m pytest
+      tests/data/test_minute_bars.py -v 2>&1 | tail -40)
+  ⎿  /tmp/zipline_venv/bin/python: No module named pytest
+
+● Bash(/tmp/zipline_venv/bin/pip install pytest 2>&1 | tail -5)
+  ⎿  Downloading pluggy-1.6.0-py3-none-any.whl (20 kB)
+     Downloading pygments-2.19.2-py3-none-any.whl (1.2 MB)
+        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 8.7 MB/s eta 0:00
+     … +4 lines (ctrl+o to expand)
+
+● Bash(PYTHONPATH=. /tmp/zipline_venv/bin/python -m pytest
+      tests/data/test_minute_bars.py -v 2>&1 | tail -40)
+  ⎿  ============================= test session starts ======================
+     ========
+     platform linux -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0 -- /tmp/zipl
+     … +20 lines (ctrl+o to expand)
+
+● Bash(/tmp/zipline_venv/bin/pip install logbook 2>&1 | tail -5)
+  ⎿     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 368.0/368.0 kB 3.9 MB/s eta
+     0:00:00
+     Downloading typing_extensions-4.15.0-py3-none-any.whl (44 kB)
+     … +4 lines (ctrl+o to expand)
+
+● Bash(PYTHONPATH=. /tmp/zipline_venv/bin/python -m pytest
+      tests/data/test_minute_bars.py -v 2>&1 | tail -40)
+  ⎿  ============================= test session starts ======================
+     ========
+     platform linux -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0 -- /tmp/zipl
+     … +20 lines (ctrl+o to expand)
+
+● Bash(PYTHONPATH=. /tmp/zipline_venv/bin/pip install pandas-datareader 2>&1 |
+      tail -5)
+  ⎿     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 71.0/71.0 kB 1.9 MB/s eta 0:
+     00:00
+     Downloading urllib3-2.6.3-py3-none-any.whl (131 kB)
+     … +6 lines (ctrl+o to expand)
+
+● Bash(PYTHONPATH=. /tmp/zipline_venv/bin/python -c "from zipline.data.minute_bars
+       import BcolzMinuteBarWriter, BcolzMinuteBarReader" 2>&1)
+  ⎿  Error: Exit code 1
+     Traceback (most recent call last):
+       File "<string>", line 1, in <module>
+       File "/home/laxman/.cache/claude-hfi/-home-laxman-marlin-zipline-1198-zipli
+     ne-784d5f4a16e4c0dadbab5af4c4ea0769de37fc6a/A/zipline/__init__.py", line 19,
+     in <module>
+         from . import data
+       File "/home/laxman/.cache/claude-hfi/-home-laxman-marlin-zipline-1198-zipli
+     ne-784d5f4a16e4c0dadbab5af4c4ea0769de37fc6a/A/zipline/data/__init__.py", line
+      1, in <module>
+         from . import loader
+       File "/home/laxman/.cache/claude-hfi/-home-laxman-marlin-zipline-1198-zipli
+     ne-784d5f4a16e4c0dadbab5af4c4ea0769de37fc6a/A/zipline/data/loader.py", line
+     20, in <module>
+         from pandas.io.data import DataReader
+     ModuleNotFoundError: No module named 'pandas.io.data'
+     … +10 lines (ctrl+o to see all)
+
+● Searched for 1 pattern, read 1 file (ctrl+o to expand)
+
+● Bash(/tmp/zipline_venv/bin/pip install six pytz 2>&1 | tail -5)
+  ⎿    Downloading pytz-2025.2-py2.py3-none-any.whl.metadata (22 kB)
+     Downloading pytz-2025.2-py2.py3-none-any.whl (509 kB)
+        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 509.2/509.2 kB 5.4 MB/s eta
+     … +3 lines (ctrl+o to expand)
+
+● This project is very old and has deep import chain issues with modern
+  Python/pandas. Let me write a standalone test runner that directly imports just
+  the module we need, bypassing the broken import chain.
+
+● Bash(PYTHONPATH=. /tmp/zipline_venv/bin/python -c "
+      import sys…)
+  ⎿  Error: Exit code 1
+     Traceback (most recent call last):
+       File "<string>", line 12, in <module>
+       File "<string>", line 26, in <module>
+     ModuleNotFoundError: No module named 'zipline.data._minute_bar_internal'
+
+     Traceback (most recent call last):
+       File "<string>", line 12, in <module>
+       File "<string>", line 26, in <module>
+     ModuleNotFoundError: No module named 'zipline.data._minute_bar_internal'
+
+● Searched for 1 pattern (ctrl+o to expand)
+
+● The Cython .pyx file needs to be compiled. Let me try a different approach -
+  build the Cython extensions first.
+
+● Bash(/tmp/zipline_venv/bin/pip install cython 2>&1 | tail -3)
+  ⎿     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 8.6 MB/s eta 0:00
+     :00
+     Installing collected packages: cython
+     Successfully installed cython-3.2.4
+
+● Bash(/tmp/zipline_venv/bin/cython zipline/data/_minute_bar_internal.pyx &&
+      /tmp/zipline_venv/bin/python -c "
+      from distutils.core import setup, Extension…)
+  ⎿  Error: Exit code 1
+
+     Error compiling Cython file:
+     ------------------------------------------------------------
+     ...
+     from numpy cimport ndarray, long_t
+     ^
+     ------------------------------------------------------------
+     zipline/data/_minute_bar_internal.pyx:1:0: 'numpy/long_t.pxd' not found
+
+     … +34 lines (ctrl+o to see all)
+
+● Read 1 file (ctrl+o to expand)
+
+● I'll create a pure Python version of the Cython module so tests can run, then
+  also check other needed dependencies.
+
+● Bash(mkdir -p /tmp/zipline_venv/lib/python3.12/site-packages/zipline/data && cat
+       > /tmp/zipline_venv/lib/python3.12/site-packages/zipline/data/_minute_bar_i
+      nternal.p…)
+  ⎿  Created pure Python _minute_bar_internal
+
+● Now let me check what other imports the test needs and find/install all
+  dependencies.
+
+● Bash(PYTHONPATH=. /tmp/zipline_venv/bin/python -c "
+      import sys, types…)
+  ⎿  Error: Exit code 1
+     Traceback (most recent call last):
+       File "<string>", line 20, in <module>
+       File "<frozen importlib._bootstrap_external>", line 995, in exec_module
+       File "<frozen importlib._bootstrap>", line 488, in
+     _call_with_frames_removed
+       File "/home/laxman/.cache/claude-hfi/-home-laxman-marlin-zipline-1198-zipli
+     ne-784d5f4a16e4c0dadbab5af4c4ea0769de37fc6a/A/zipline/data/minute_bars.py",
+     line 26, in <module>
+         from zipline.data._minute_bar_internal import (
+     ModuleNotFoundError: No module named 'zipline.data._minute_bar_internal'
+
+     Traceback (most recent call last):
+     … +6 lines (ctrl+o to see all)
+
+● Bash(PYTHONPATH=. /tmp/zipline_venv/bin/python -c "
+      import sys, types, importlib.util…)
+  ⎿  (No output)
+
+● Searched for 1 pattern, read 2 files (ctrl+o to expand)
+
+● Let me create a comprehensive test runner script that stubs all the Cython
+  dependencies and runs the tests cleanly.
+
+● Write(run_minute_bar_tests.py)
+  ⎿  Wrote 139 lines to run_minute_bar_tests.py
+     """
+     Test runner script that stubs out Cython dependencies so minute bar
+     tests
+     can run with pure Python on any environment.
+     """
+     import sys
+     import types
+     import importlib.util
+     import os
+
+     # --- Stub out the zipline top-level package to prevent __init__.py
+     imports ---
+     … +129 lines (ctrl+o to expand)
+
+● Bash(/tmp/zipline_venv/bin/python run_minute_bar_tests.py 2>&1 | head -30)
+  ⎿  Traceback (most recent call last):
+       File "/home/laxman/.cache/claude-hfi/-home-laxman-marlin-zipline-1198-
+     zipline-784d5f4a16e4c0dadbab5af4c4ea0769de37fc6a/A/run_minute_bar_tests.
+     … +11 lines (ctrl+o to expand)
+
+● Bash(/tmp/zipline_venv/bin/pip install click 2>&1 | tail -3)
+  ⎿     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 108.3/108.3 kB 1.5 MB/s eta
+     0:00:00
+     Installing collected packages: click
+     Successfully installed click-8.3.1
+
+● Bash(/tmp/zipline_venv/bin/python run_minute_bar_tests.py 2>&1 | head -30)
+  ⎿  Traceback (most recent call last):
+       File "/home/laxman/.cache/claude-hfi/-home-laxman-marlin-zipline-1198-
+     zipline-784d5f4a16e4c0dadbab5af4c4ea0769de37fc6a/A/run_minute_bar_tests.
+     … +12 lines (ctrl+o to expand)
+
+● The codebase has many Python 3.12 incompatibilities. Let me create a fully
+  self-contained test script that stubs everything properly.
+
+● Read 1 file (ctrl+o to expand)
+
+● There are too many compatibility issues in the full import chain. Let me write a
+   self-contained test script that only imports what's minimally needed.
+
+● Write(run_minute_bar_tests.py)
+  ⎿  Added 448 lines, removed 61 lines
+       1  """
+       2 -Test runner script that stubs out Cython dependencies so minute
+         -bar tests
+       3 -can run with pure Python on any environment.
+       2 +Self-contained test runner for minute bar tests.
+       3 +Stubs out Cython and Python 3.12 incompatibilities.
+       4  """
+       5  import sys
+       6  import types
+       7 -import importlib.util
+       7  import os
+       8 +from weakref import WeakKeyDictionary
+       9
+      10 -# --- Stub out the zipline top-level package to prevent
+         -__init__.py imports ---
+      10  root = os.path.dirname(os.path.abspath(__file__))
+      11
+      12 -zipline_stub = types.ModuleType('zipline')
+      13 -zipline_stub.__path__ = [os.path.join(root, 'zipline')]
+      14 -zipline_stub.__package__ = 'zipline'
+      15 -sys.modules['zipline'] = zipline_stub
+      12 +# ---- Stub top-level packages to prevent __init__.py side
+         +effects ----
+      13 +for mod_path, mod_subpaths in [
+      14 +    ('zipline', ['zipline']),
+      15 +    ('zipline.data', ['zipline', 'data']),
+      16 +    ('zipline.gens', ['zipline', 'gens']),
+      17 +    ('zipline.utils', ['zipline', 'utils']),
+      18 +    ('zipline.finance', ['zipline', 'finance']),
+      19 +]:
+      20 +    m = types.ModuleType(mod_path)
+      21 +    m.__path__ = [os.path.join(root, *mod_subpaths)]
+      22 +    m.__package__ = mod_path
+      23 +    sys.modules[mod_path] = m
+      24
+      25 -zipline_data = types.ModuleType('zipline.data')
+      26 -zipline_data.__path__ = [os.path.join(root, 'zipline', 'data')]
+      27 -zipline_data.__package__ = 'zipline.data'
+      28 -sys.modules['zipline.data'] = zipline_data
+      25
+      26 -zipline_gens = types.ModuleType('zipline.gens')
+      27 -zipline_gens.__path__ = [os.path.join(root, 'zipline', 'gens')]
+      28 -zipline_gens.__package__ = 'zipline.gens'
+      29 -sys.modules['zipline.gens'] = zipline_gens
+      30 -
+      31 -zipline_utils = types.ModuleType('zipline.utils')
+      32 -zipline_utils.__path__ = [os.path.join(root, 'zipline',
+         -'utils')]
+      33 -zipline_utils.__package__ = 'zipline.utils'
+      34 -sys.modules['zipline.utils'] = zipline_utils
+      35 -
+      36 -zipline_finance = types.ModuleType('zipline.finance')
+      37 -zipline_finance.__path__ = [os.path.join(root, 'zipline',
+         -'finance')]
+      38 -zipline_finance.__package__ = 'zipline.finance'
+      39 -sys.modules['zipline.finance'] = zipline_finance
+      40 -
+      41 -# --- Provide pure Python _minute_bar_internal ---
+      26 +# ---- Pure Python _minute_bar_internal ----
+      27  from numpy import searchsorted as _searchsorted
+      28
+      29  _internal =
+          types.ModuleType('zipline.data._minute_bar_internal')
+     ...
+       85  _internal.find_last_traded_position_internal =
+           find_last_traded_position_internal
+       86  sys.modules['zipline.data._minute_bar_internal'] = _internal
+       87
+       88 -# --- Provide sim_engine with NANOS_IN_MINUTE ---
+       88 +# ---- sim_engine stub ----
+       89  sim_engine = types.ModuleType('zipline.gens.sim_engine')
+       90  sim_engine.NANOS_IN_MINUTE = 60000000000
+       91  sys.modules['zipline.gens.sim_engine'] = sim_engine
+       92
+       93 -# --- Import zipline.utils modules needed by minute_bars ---
+       94 -spec_cli = importlib.util.spec_from_file_location(
+       95 -    'zipline.utils.cli',
+       96 -    os.path.join(root, 'zipline', 'utils', 'cli.py'))
+       97 -cli_mod = importlib.util.module_from_spec(spec_cli)
+       98 -sys.modules['zipline.utils.cli'] = cli_mod
+       99 -spec_cli.loader.exec_module(cli_mod)
+       93 +# ---- Inline lazyval (from memoize.py, avoiding broken
+          +imports) ----
+       94 +class lazyval(object):
+       95 +    def __init__(self, get):
+       96 +        self._get = get
+       97 +        self._cache = WeakKeyDictionary()
+       98
+       99 -spec_memoize = importlib.util.spec_from_file_location(
+      100 -    'zipline.utils.memoize',
+      101 -    os.path.join(root, 'zipline', 'utils', 'memoize.py'))
+      102 -memoize_mod = importlib.util.module_from_spec(spec_memoize)
+       99 +    def __get__(self, instance, owner):
+      100 +        if instance is None:
+      101 +            return self
+      102 +        try:
+      103 +            return self._cache[instance]
+      104 +        except KeyError:
+      105 +            self._cache[instance] = val = self._get(instance)
+      106 +            return val
+      107 +
+      108 +    def __set__(self, instance, value):
+      109 +        raise AttributeError("Can't set read-only attribute.")
+      110 +
+      111 +    def __delitem__(self, instance):
+      112 +        del self._cache[instance]
+      113 +
+      114 +memoize_mod = types.ModuleType('zipline.utils.memoize')
+      115 +memoize_mod.lazyval = lazyval
+      116  sys.modules['zipline.utils.memoize'] = memoize_mod
+      117 -spec_memoize.loader.exec_module(memoize_mod)
+      117
+      118 -# --- Now import minute_bars properly ---
+      118 +# ---- cli stub (maybe_show_progress) ----
+      119 +from contextlib import contextmanager
+      120 +
+      121 +
+      122 +@contextmanager
+      123 +def maybe_show_progress(it, show_progress=False,
+          +item_show_func=None,
+      124 +                        label=""):
+      125 +    yield iter(it)
+      126 +
+      127 +cli_mod = types.ModuleType('zipline.utils.cli')
+      128 +cli_mod.maybe_show_progress = maybe_show_progress
+      129 +sys.modules['zipline.utils.cli'] = cli_mod
+      130 +
+      131 +# ---- Now import minute_bars ----
+      132 +import importlib.util
+      133 +
+      134  spec_mb = importlib.util.spec_from_file_location(
+      135      'zipline.data.minute_bars',
+      136      os.path.join(root, 'zipline', 'data', 'minute_bars.py'))
+      137  minute_bars = importlib.util.module_from_spec(spec_mb)
+      138  sys.modules['zipline.data.minute_bars'] = minute_bars
+      139 -zipline_data.minute_bars = minute_bars
+      139 +sys.modules['zipline.data'].minute_bars = minute_bars
+      140  spec_mb.loader.exec_module(minute_bars)
+      141
+      142 -# --- Import TradingEnvironment ---
+      143 -# TradingEnvironment needs trading_calendars or similar. Let's
+          -check what it
+      144 -# needs and provide it.
+      145 -spec_trading = importlib.util.spec_from_file_location(
+      146 -    'zipline.finance.trading',
+      147 -    os.path.join(root, 'zipline', 'finance', 'trading.py'))
+      148 -trading_mod = importlib.util.module_from_spec(spec_trading)
+      142 +# ---- Build a TradingEnvironment equivalent ----
+      143 +import pandas as pd
+      144 +import numpy as np
+      145 +from pandas.tseries.offsets import CustomBusinessDay
+      146 +from pandas.tseries.holiday import USFederalHolidayCalendar
+      147 +
+      148 +TEST_CALENDAR_START = pd.Timestamp('2014-06-02', tz='UTC')
+      149 +TEST_CALENDAR_STOP = pd.Timestamp('2015-12-31', tz='UTC')
+      150 +
+      151 +# Generate US equity trading calendar
+      152 +us_bd = CustomBusinessDay(calendar=USFederalHolidayCalendar())
+      153 +trading_days = pd.date_range(TEST_CALENDAR_START,
+          +TEST_CALENDAR_STOP,
+      154 +                             freq=us_bd, tz='UTC')
+      155 +
+      156 +# Market hours: 9:30 AM - 4:00 PM ET (14:30 - 21:00 UTC)
+      157 +market_opens = pd.Series(
+      158 +    index=trading_days,
+      159 +    data=[day + pd.Timedelta(hours=14, minutes=30) for day in
+          +trading_days]
+      160 +)
+      161 +market_closes = pd.Series(
+      162 +    index=trading_days,
+      163 +    data=[day + pd.Timedelta(hours=21) for day in trading_days]
+      164 +)
+      165 +
+      166 +# ---- Patch TradingEnvironment to provide market data ----
+      167 +class FakeTradingEnvironment:
+      168 +    def __init__(self):
+      169 +        self.open_and_closes = pd.DataFrame({
+      170 +            'market_open': market_opens,
+      171 +            'market_close': market_closes,
+      172 +        })
+      173 +
+      174 +trading_mod = types.ModuleType('zipline.finance.trading')
+      175 +trading_mod.TradingEnvironment = FakeTradingEnvironment
+      176  sys.modules['zipline.finance.trading'] = trading_mod
+      177
+      178 -if __name__ == '__main__':
+      179 -    # Try to load the full trading module; if it fails, we'll
+          -know what else
+      180 -    # to stub.
+      181 -    try:
+      182 -        spec_trading.loader.exec_module(trading_mod)
+      183 -    except Exception as e:
+      184 -        print(f"Could not import trading module: {e}")
+      185 -        sys.exit(1)
+      178 +# ---- Run our focused tests ----
+      179 +from datetime import timedelta
+      180 +from unittest import TestCase
+      181 +from testfixtures import TempDirectory
+      182
+      183 +BcolzMinuteBarWriter = minute_bars.BcolzMinuteBarWriter
+      184 +BcolzMinuteBarReader = minute_bars.BcolzMinuteBarReader
+      185 +BcolzMinuteOverlappingData =
+          +minute_bars.BcolzMinuteOverlappingData
+      186 +US_EQUITIES_MINUTES_PER_DAY =
+          +minute_bars.US_EQUITIES_MINUTES_PER_DAY
+      187 +
+      188 +
+      189 +class MinuteBarRefinementTests(TestCase):
+      190 +    """Tests for the refined minute bar writing logic."""
+      191 +
+      192 +    @classmethod
+      193 +    def setUpClass(cls):
+      194 +        indexer = market_opens.index.slice_indexer(
+      195 +            start=TEST_CALENDAR_START,
+      196 +            end=TEST_CALENDAR_STOP
+      197 +        )
+      198 +        cls.market_opens = market_opens[indexer]
+      199 +        cls.market_closes = market_closes[indexer]
+      200 +        cls.test_calendar_start = cls.market_opens.index[0]
+      201 +        cls.test_calendar_stop = cls.market_opens.index[-1]
+      202 +
+      203 +    def setUp(self):
+      204 +        self.dir_ = TempDirectory()
+      205 +        self.dir_.create()
+      206 +        self.dest = self.dir_.getpath('minute_bars')
+      207 +        os.makedirs(self.dest)
+      208 +        self.writer = BcolzMinuteBarWriter(
+      209 +            TEST_CALENDAR_START,
+      210 +            self.dest,
+      211 +            self.market_opens,
+      212 +            self.market_closes,
+      213 +            US_EQUITIES_MINUTES_PER_DAY,
+      214 +        )
+      215 +        self.reader = BcolzMinuteBarReader(self.dest)
+      216 +
+      217 +    def tearDown(self):
+      218 +        self.dir_.cleanup()
+      219 +
+      220 +    # ---- Existing behavior tests ----
+      221 +
+      222 +    def test_write_one_ohlcv(self):
+      223 +        """Existing: single minute bar write/read."""
+      224 +        minute = self.market_opens[self.test_calendar_start]
+      225 +        sid = 1
+      226 +        data = pd.DataFrame(
+      227 +            data={
+      228 +                'open': [10.0], 'high': [20.0], 'low': [30.0],
+      229 +                'close': [40.0], 'volume': [50.0]
+      230 +            },
+      231 +            index=[minute])
+      232 +        self.writer.write_sid(sid, data)
+      233 +        self.assertEqual(10.0, self.reader.get_value(sid,
+          +minute, 'open'))
+      234 +        self.assertEqual(20.0, self.reader.get_value(sid,
+          +minute, 'high'))
+      235 +        self.assertEqual(30.0, self.reader.get_value(sid,
+          +minute, 'low'))
+      236 +        self.assertEqual(40.0, self.reader.get_value(sid,
+          +minute, 'close'))
+      237 +        self.assertEqual(50.0, self.reader.get_value(sid,
+          +minute, 'volume'))
+      238 +
+      239 +    def test_write_two_bars(self):
+      240 +        """Existing: multiple consecutive minute bars."""
+      241 +        minute_0 = self.market_opens[self.test_calendar_start]
+      242 +        minute_1 = minute_0 + timedelta(minutes=1)
+      243 +        sid = 1
+      244 +        data = pd.DataFrame(
+      245 +            data={
+      246 +                'open': [10.0, 11.0], 'high': [20.0, 21.0],
+      247 +                'low': [30.0, 31.0], 'close': [40.0, 41.0],
+      248 +                'volume': [50.0, 51.0]
+      249 +            },
+      250 +            index=[minute_0, minute_1])
+      251 +        self.writer.write_sid(sid, data)
+      252 +        self.assertEqual(10.0, self.reader.get_value(sid,
+          +minute_0, 'open'))
+      253 +        self.assertEqual(11.0, self.reader.get_value(sid,
+          +minute_1, 'open'))
+      254 +        self.assertEqual(51.0, self.reader.get_value(sid,
+          +minute_1, 'volume'))
+      255 +
+      256 +    def test_no_overwrite(self):
+      257 +        """Existing: writing the same data twice raises overlap
+          + error."""
+      258 +        minute = self.market_opens[TEST_CALENDAR_START]
+      259 +        sid = 1
+      260 +        data = pd.DataFrame(
+      261 +            data={
+      262 +                'open': [10.0], 'high': [20.0], 'low': [30.0],
+      263 +                'close': [40.0], 'volume': [50.0]
+      264 +            },
+      265 +            index=[minute])
+      266 +        self.writer.write_sid(sid, data)
+      267 +        with self.assertRaises(BcolzMinuteOverlappingData):
+      268 +            self.writer.write_sid(sid, data)
+      269 +
+      270 +    def test_write_on_second_day(self):
+      271 +        """Existing: writing on a later day with gap."""
+      272 +        second_day = self.test_calendar_start + 1
+      273 +        minute = self.market_opens[second_day]
+      274 +        sid = 1
+      275 +        data = pd.DataFrame(
+      276 +            data={
+      277 +                'open': [10.0], 'high': [20.0], 'low': [30.0],
+      278 +                'close': [40.0], 'volume': [50.0]
+      279 +            },
+      280 +            index=[minute])
+      281 +        self.writer.write_sid(sid, data)
+      282 +        self.assertEqual(10.0, self.reader.get_value(sid,
+          +minute, 'open'))
+      283 +
+      284 +    def test_write_multiple_sids(self):
+      285 +        """Existing: writing multiple sids."""
+      286 +        minute = self.market_opens[TEST_CALENDAR_START]
+      287 +        sids = [1, 2]
+      288 +        data1 = pd.DataFrame(
+      289 +            data={
+      290 +                'open': [15.0], 'high': [17.0], 'low': [11.0],
+      291 +                'close': [15.0], 'volume': [100.0]
+      292 +            },
+      293 +            index=[minute])
+      294 +        self.writer.write_sid(sids[0], data1)
+      295 +        data2 = pd.DataFrame(
+      296 +            data={
+      297 +                'open': [25.0], 'high': [27.0], 'low': [21.0],
+      298 +                'close': [25.0], 'volume': [200.0]
+      299 +            },
+      300 +            index=[minute])
+      301 +        self.writer.write_sid(sids[1], data2)
+      302 +        self.assertEqual(15.0, self.reader.get_value(sids[0],
+          +minute, 'open'))
+      303 +        self.assertEqual(25.0, self.reader.get_value(sids[1],
+          +minute, 'open'))
+      304 +
+      305 +    # ---- New refinement tests ----
+      306 +
+      307 +    def test_same_day_append(self):
+      308 +        """
+      309 +        New minutes can be appended within the same trading
+          +day,
+      310 +        provided they strictly follow the last recorded minute.
+      311 +        """
+      312 +        sid = 1
+      313 +        minute_0 = self.market_opens[self.test_calendar_start]
+      314 +        minute_1 = minute_0 + timedelta(minutes=1)
+      315 +
+      316 +        # First write: minutes 0-1
+      317 +        data1 = pd.DataFrame(
+      318 +            data={
+      319 +                'open': [10.0, 11.0], 'high': [20.0, 21.0],
+      320 +                'low': [30.0, 31.0], 'close': [40.0, 41.0],
+      321 +                'volume': [50.0, 51.0]
+      322 +            },
+      323 +            index=[minute_0, minute_1])
+      324 +        self.writer.write_sid(sid, data1)
+      325 +
+      326 +        # Second write: minutes 2-3 on the same day
+      327 +        minute_2 = minute_0 + timedelta(minutes=2)
+      328 +        minute_3 = minute_0 + timedelta(minutes=3)
+      329 +        data2 = pd.DataFrame(
+      330 +            data={
+      331 +                'open': [12.0, 13.0], 'high': [22.0, 23.0],
+      332 +                'low': [32.0, 33.0], 'close': [42.0, 43.0],
+      333 +                'volume': [52.0, 53.0]
+      334 +            },
+      335 +            index=[minute_2, minute_3])
+      336 +        self.writer.write_sid(sid, data2)
+      337 +
+      338 +        # Use fresh reader to avoid caching issues.
+      339 +        reader = BcolzMinuteBarReader(self.dest)
+      340 +
+      341 +        # Verify first batch is preserved.
+      342 +        self.assertEqual(10.0, reader.get_value(sid, minute_0,
+          +'open'))
+      343 +        self.assertEqual(20.0, reader.get_value(sid, minute_0,
+          +'high'))
+      344 +        self.assertEqual(30.0, reader.get_value(sid, minute_0,
+          +'low'))
+      345 +        self.assertEqual(40.0, reader.get_value(sid, minute_0,
+          +'close'))
+      346 +        self.assertEqual(50.0, reader.get_value(sid, minute_0,
+          +'volume'))
+      347 +
+      348 +        # Verify second batch is written correctly.
+      349 +        self.assertEqual(12.0, reader.get_value(sid, minute_2,
+          +'open'))
+      350 +        self.assertEqual(22.0, reader.get_value(sid, minute_2,
+          +'high'))
+      351 +        self.assertEqual(32.0, reader.get_value(sid, minute_2,
+          +'low'))
+      352 +        self.assertEqual(42.0, reader.get_value(sid, minute_2,
+          +'close'))
+      353 +        self.assertEqual(52.0, reader.get_value(sid, minute_2,
+          +'volume'))
+      354 +
+      355 +        self.assertEqual(13.0, reader.get_value(sid, minute_3,
+          +'open'))
+      356 +        self.assertEqual(53.0, reader.get_value(sid, minute_3,
+          +'volume'))
+      357 +
+      358 +    def test_same_day_append_overlapping_raises(self):
+      359 +        """
+      360 +        Writing minutes that overlap with already-written
+          +minutes
+      361 +        within the same trading day raises
+          +BcolzMinuteOverlappingData.
+      362 +        """
+      363 +        sid = 1
+      364 +        minute_0 = self.market_opens[self.test_calendar_start]
+      365 +        minute_1 = minute_0 + timedelta(minutes=1)
+      366 +
+      367 +        data1 = pd.DataFrame(
+      368 +            data={
+      369 +                'open': [10.0, 11.0], 'high': [20.0, 21.0],
+      370 +                'low': [30.0, 31.0], 'close': [40.0, 41.0],
+      371 +                'volume': [50.0, 51.0]
+      372 +            },
+      373 +            index=[minute_0, minute_1])
+      374 +        self.writer.write_sid(sid, data1)
+      375 +
+      376 +        # Try to write starting at minute_1 (overlaps last
+          +written minute).
+      377 +        minute_2 = minute_0 + timedelta(minutes=2)
+      378 +        data2 = pd.DataFrame(
+      379 +            data={
+      380 +                'open': [11.5, 12.0], 'high': [21.5, 22.0],
+      381 +                'low': [31.5, 32.0], 'close': [41.5, 42.0],
+      382 +                'volume': [51.5, 52.0]
+      383 +            },
+      384 +            index=[minute_1, minute_2])
+      385 +
+      386 +        with self.assertRaises(BcolzMinuteOverlappingData):
+      387 +            self.writer.write_sid(sid, data2)
+      388 +
+      389 +    def test_multi_sid_same_day_independence(self):
+      390 +        """
+      391 +        Same-day appends for different sids are tracked
+          +independently,
+      392 +        with no cross-sid synchronization.
+      393 +        """
+      394 +        minute_0 = self.market_opens[self.test_calendar_start]
+      395 +        minute_1 = minute_0 + timedelta(minutes=1)
+      396 +        minute_2 = minute_0 + timedelta(minutes=2)
+      397 +        minute_3 = minute_0 + timedelta(minutes=3)
+      398 +
+      399 +        # Sid 1: write minutes 0-1
+      400 +        data1_sid1 = pd.DataFrame(
+      401 +            data={
+      402 +                'open': [10.0, 11.0], 'high': [20.0, 21.0],
+      403 +                'low': [30.0, 31.0], 'close': [40.0, 41.0],
+      404 +                'volume': [50.0, 51.0]
+      405 +            },
+      406 +            index=[minute_0, minute_1])
+      407 +        self.writer.write_sid(1, data1_sid1)
+      408 +
+      409 +        # Sid 2: write minutes 0-2 (different range, same day)
+      410 +        data1_sid2 = pd.DataFrame(
+      411 +            data={
+      412 +                'open': [100.0, 101.0, 102.0],
+      413 +                'high': [200.0, 201.0, 202.0],
+      414 +                'low': [300.0, 301.0, 302.0],
+      415 +                'close': [400.0, 401.0, 402.0],
+      416 +                'volume': [500.0, 501.0, 502.0]
+      417 +            },
+      418 +            index=[minute_0, minute_1, minute_2])
+      419 +        self.writer.write_sid(2, data1_sid2)
+      420 +
+      421 +        # Sid 1: append minutes 2-3 (independent of sid 2)
+      422 +        data2_sid1 = pd.DataFrame(
+      423 +            data={
+      424 +                'open': [12.0, 13.0], 'high': [22.0, 23.0],
+      425 +                'low': [32.0, 33.0], 'close': [42.0, 43.0],
+      426 +                'volume': [52.0, 53.0]
+      427 +            },
+      428 +            index=[minute_2, minute_3])
+      429 +        self.writer.write_sid(1, data2_sid1)
+      430 +
+      431 +        # Sid 2: append minute 3 (independent of sid 1)
+      432 +        data2_sid2 = pd.DataFrame(
+      433 +            data={
+      434 +                'open': [103.0], 'high': [203.0],
+      435 +                'low': [303.0], 'close': [403.0],
+      436 +                'volume': [503.0]
+      437 +            },
+      438 +            index=[minute_3])
+      439 +        self.writer.write_sid(2, data2_sid2)
+      440 +
+      441 +        reader = BcolzMinuteBarReader(self.dest)
+      442 +
+      443 +        # Verify sid 1 data
+      444 +        self.assertEqual(10.0, reader.get_value(1, minute_0,
+          +'open'))
+      445 +        self.assertEqual(11.0, reader.get_value(1, minute_1,
+          +'open'))
+      446 +        self.assertEqual(12.0, reader.get_value(1, minute_2,
+          +'open'))
+      447 +        self.assertEqual(13.0, reader.get_value(1, minute_3,
+          +'open'))
+      448 +
+      449 +        # Verify sid 2 data
+      450 +        self.assertEqual(100.0, reader.get_value(2, minute_0,
+          +'open'))
+      451 +        self.assertEqual(101.0, reader.get_value(2, minute_1,
+          +'open'))
+      452 +        self.assertEqual(102.0, reader.get_value(2, minute_2,
+          +'open'))
+      453 +        self.assertEqual(103.0, reader.get_value(2, minute_3,
+          +'open'))
+      454 +
+      455 +    def test_sid_attr_persistence(self):
+      456 +        """
+      457 +        set_sid_attrs and get_sid_attr for per-sid metadata,
+      458 +        including that non-existent attributes return None.
+      459 +        """
+      460 +        sid = 1
+      461 +
+      462 +        # Before any write, get_sid_attr should return None.
+      463 +        self.assertIsNone(self.writer.get_sid_attr(sid,
+          +'last_minute'))
+      464 +        self.assertIsNone(self.writer.get_sid_attr(sid,
+          +'nonexistent'))
+      465 +
+      466 +        # Write some data to create the sid's ctable.
+      467 +        minute = self.market_opens[self.test_calendar_start]
+      468 +        data = pd.DataFrame(
+      469 +            data={
+      470 +                'open': [10.0], 'high': [20.0], 'low': [30.0],
+      471 +                'close': [40.0], 'volume': [50.0]
+      472 +            },
+      473 +            index=[minute])
+      474 +        self.writer.write_sid(sid, data)
+      475 +
+      476 +        # After write, last_minute should be set automatically.
+      477 +        last_minute = self.writer.get_sid_attr(sid,
+          +'last_minute')
+      478 +        self.assertIsNotNone(last_minute)
+      479 +
+      480 +        # Set custom attributes.
+      481 +        self.writer.set_sid_attrs(sid,
+          +custom_key='custom_value')
+      482 +        self.assertEqual('custom_value',
+      483 +                         self.writer.get_sid_attr(sid,
+          +'custom_key'))
+      484 +
+      485 +        # Previously set attrs should still be accessible.
+      486 +        self.assertIsNotNone(self.writer.get_sid_attr(sid,
+          +'last_minute'))
+      487 +
+      488 +        # Non-existent attr should return None.
+      489 +        self.assertIsNone(self.writer.get_sid_attr(sid,
+          +'nonexistent'))
+      490 +
+      491 +    def test_same_day_append_spanning_new_day(self):
+      492 +        """
+      493 +        Appending data that starts on an already-written day
+          +and
+      494 +        extends into a new day should work correctly.
+      495 +        """
+      496 +        sid = 1
+      497 +        minute_0 = self.market_opens[self.test_calendar_start]
+      498 +        minute_1 = minute_0 + timedelta(minutes=1)
+      499 +
+      500 +        # First write: two minutes on day 1
+      501 +        data1 = pd.DataFrame(
+      502 +            data={
+      503 +                'open': [10.0, 11.0], 'high': [20.0, 21.0],
+      504 +                'low': [30.0, 31.0], 'close': [40.0, 41.0],
+      505 +                'volume': [50.0, 51.0]
+      506 +            },
+      507 +            index=[minute_0, minute_1])
+      508 +        self.writer.write_sid(sid, data1)
+      509 +
+      510 +        # Second write: one more minute on day 1 + one minute
+          +on day 2
+      511 +        minute_2 = minute_0 + timedelta(minutes=2)
+      512 +        second_day = self.test_calendar_start + 1
+      513 +        minute_day2 = self.market_opens[second_day]
+      514 +
+      515 +        data2 = pd.DataFrame(
+      516 +            data={
+      517 +                'open': [12.0, 20.0], 'high': [22.0, 30.0],
+      518 +                'low': [32.0, 10.0], 'close': [42.0, 25.0],
+      519 +                'volume': [52.0, 100.0]
+      520 +            },
+      521 +            index=[minute_2, minute_day2])
+      522 +        self.writer.write_sid(sid, data2)
+      523 +
+      524 +        reader = BcolzMinuteBarReader(self.dest)
+      525 +
+      526 +        # Verify day 1 data
+      527 +        self.assertEqual(10.0, reader.get_value(sid, minute_0,
+          +'open'))
+      528 +        self.assertEqual(12.0, reader.get_value(sid, minute_2,
+          +'open'))
+      529 +
+      530 +        # Verify day 2 data
+      531 +        self.assertEqual(20.0, reader.get_value(sid,
+          +minute_day2, 'open'))
+      532 +        self.assertEqual(100.0, reader.get_value(sid,
+          +minute_day2, 'volume'))
+      533 +
+      534 +
+      535 +if __name__ == '__main__':
+      536      import pytest
+      537 -    sys.exit(pytest.main([
+      538 -        'tests/data/test_minute_bars.py', '-v'
+      539 -    ] + sys.argv[1:]))
+      537 +    sys.exit(pytest.main([__file__, '-v'] + sys.argv[1:]))
+
+● Bash(/tmp/zipline_venv/bin/python run_minute_bar_tests.py 2>&1)
+  ⎿  Error: Exit code 1
+     ============================= test session starts
+     ==============================
+     platform linux -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0 --
+     /tmp/zipline_venv/bin/python
+     cachedir: .pytest_cache
+     rootdir: /home/laxman/.cache/claude-hfi/-home-laxman-marlin-zipline-1198-zipl
+     ine-784d5f4a16e4c0dadbab5af4c4ea0769de37fc6a/A
+     collecting ... collected 10 items
+
+     run_minute_bar_tests.py::MinuteBarRefinementTests::test_multi_sid_same_day_in
+     dependence FAILED [ 10%]
+     run_minute_bar_tests.py::MinuteBarRefinementTests::test_no_overwrite FAILED [
+      20%]
+     run_minute_bar_tests.py::MinuteBarRefinementTests::test_same_day_append
+     FAILED [ 30%]
+     … +211 lines (ctrl+o to see all)
+
+● Good - it's the same error everywhere: pd.to_datetime() removed the box
+  parameter in newer pandas. This is a pre-existing compatibility issue in the
+  codebase's _calc_minute_index function. Let me fix it minimally.
+
+● Update(zipline/data/minute_bars.py)
+  ⎿  Added 1 line, removed 1 line
+      58          start_ix = minutes_per_day * i
+      59          end_ix = start_ix + minutes_per_day
+      60          minutes[start_ix:end_ix] = minute_values
+      61 -    return pd.to_datetime(minutes, utc=True, box=True)
+      61 +    return pd.to_datetime(minutes, utc=True)
+      62
+      63
+      64  def _sid_subdir_path(sid):
+
+● Bash(/tmp/zipline_venv/bin/python run_minute_bar_tests.py 2>&1)
+  ⎿  Error: Exit code 1
+     ============================= test session starts
+     ==============================
+     platform linux -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0 --
+     /tmp/zipline_venv/bin/python
+     cachedir: .pytest_cache
+     rootdir: /home/laxman/.cache/claude-hfi/-home-laxman-marlin-zipline-1198-zipl
+     ine-784d5f4a16e4c0dadbab5af4c4ea0769de37fc6a/A
+     collecting ... collected 10 items
+
+     run_minute_bar_tests.py::MinuteBarRefinementTests::test_multi_sid_same_day_in
+     dependence FAILED [ 10%]
+     run_minute_bar_tests.py::MinuteBarRefinementTests::test_no_overwrite FAILED [
+      20%]
+     run_minute_bar_tests.py::MinuteBarRefinementTests::test_same_day_append
+     FAILED [ 30%]
+     … +219 lines (ctrl+o to see all)
+
+● Good progress - 4 passed already. There are two pre-existing pandas
+  compatibility issues:
+  1. Float index in last_date_in_output_for_sid (line 347)
+  2. Timestamp + int no longer supported in newer pandas
+
+  Let me fix both issues in the minute_bars.py code (they're trivial compat
+  fixes).
+
+● Update(zipline/data/minute_bars.py)
+  ⎿  Added 1 line, removed 1 line
+      340          with open(sizes_path, mode='r') as f:
+      341              sizes = f.read()
+      342          data = json.loads(sizes)
+      343 -        num_days = data['shape'][0] / self._minutes_per_day
+      343 +        num_days = int(data['shape'][0] // self._minutes_per_day
+          +)
+      344          if num_days == 0:
+      345              # empty container
+      346              return pd.NaT
+
+● Now fix the Timestamp + int issue in the test runner by using pd.Timedelta:
+
+● Update(run_minute_bar_tests.py)
+  ⎿  Added 2 lines, removed 1 line
+      257
+      258      def test_write_on_second_day(self):
+      259          """Existing: writing on a later day with gap."""
+      260 -        second_day = self.test_calendar_start + 1
+      260 +        tds = self.market_opens.index
+      261 +        second_day = tds[tds.get_loc(self.test_calendar_start)
+          ++ 1]
+      262          minute = self.market_opens[second_day]
+      263          sid = 1
+      264          data = pd.DataFrame(
+
+● Update(run_minute_bar_tests.py)
+  ⎿  Added 2 lines, removed 1 line
+      498
+      499          # Second write: one more minute on day 1 + one minute
+           on day 2
+      500          minute_2 = minute_0 + timedelta(minutes=2)
+      501 -        second_day = self.test_calendar_start + 1
+      501 +        tds = self.market_opens.index
+      502 +        second_day = tds[tds.get_loc(self.test_calendar_start)
+          ++ 1]
+      503          minute_day2 = self.market_opens[second_day]
+      504
+      505          data2 = pd.DataFrame(
+
+● Bash(/tmp/zipline_venv/bin/python run_minute_bar_tests.py 2>&1)
+  ⎿  Error: Exit code 1
+     ============================= test session starts
+     ==============================
+     platform linux -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0 --
+     /tmp/zipline_venv/bin/python
+     cachedir: .pytest_cache
+     rootdir: /home/laxman/.cache/claude-hfi/-home-laxman-marlin-zipline-1198-zipl
+     ine-784d5f4a16e4c0dadbab5af4c4ea0769de37fc6a/A
+     collecting ... collected 10 items
+
+     run_minute_bar_tests.py::MinuteBarRefinementTests::test_multi_sid_same_day_in
+     dependence PASSED [ 10%]
+     run_minute_bar_tests.py::MinuteBarRefinementTests::test_no_overwrite PASSED [
+      20%]
+     run_minute_bar_tests.py::MinuteBarRefinementTests::test_same_day_append
+     PASSED [ 30%]
+     … +222 lines (ctrl+o to see all)
+
+● 9 of 10 pass. The only failure is test_write_on_second_day which is a
+  pre-existing pandas compatibility issue in the pad method where slice_indexer is
+   called with start=NaT + tds.freq (NaT arithmetic). This is not related to my
+  changes. Let me fix that in pad().
+
+● Read 1 file (ctrl+o to expand)
+
+● The issue is last_date == pd.NaT not working reliably in newer pandas. Let me
+  fix the pad method.
+
+● Update(zipline/data/minute_bars.py)
+  ⎿  Added 1 line, removed 1 line
+      472              # No need to pad.
+      473              return
+      474
+      475 -        if last_date == pd.NaT:
+      475 +        if pd.isnull(last_date):
+      476              # If there is no data, determine how many days to
+           add so that
+      477              # desired days are written to the correct slots.
+      478              days_to_zerofill = tds[tds.slice_indexer(end=date)]
+
+● Bash(/tmp/zipline_venv/bin/python run_minute_bar_tests.py 2>&1)
+  ⎿  ============================= test session starts ======================
+     ========
+     platform linux -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0 -- /tmp/zipl
+     … +17 lines (ctrl+o to expand)
+  ⎿  (timeout 2m)
+
+● All 10 tests pass. Let me update the todo list and verify the final state of the
+   modified files.
+
+● Let me verify the final state of the modified minute_bars.py to make sure
+  everything is consistent.
+
+● Read 1 file (ctrl+o to expand)
+
+✽ Mustering… (34m 0s · ↓ 74.4k tokens)
+laxman@LAPTOP-D0BA5CIS:~/.cache/claude-hfi/-home-laxman-marlin-zipline-1198-ziplin
+e-784d5f4a16e4c0dadbab5af4c4ea0769de37fc6a/A$ ls -lh turn1a.txt
+
+less turn1a.txt
+
+cat turn1a.txt
+
+cp turn1a.txt /mnt/c/Users/V.Ashok/Downloads/
+ls: cannot access 'turn1a.txt': No such file or directory
+turn1a.txt: No such file or directory
+cat: turn1a.txt: No such file or directory
+cp: cannot stat 'turn1a.txt': No such file or directory
+laxman@LAPTOP-D0BA5CIS:~/.cache/claude-hfi/-home-laxman-marlin-zipline-1198-ziplin
+e-784d5f4a16e4c0dadbab5af4c4ea0769de37fc6a/A$ tmux capture-pane -S -5000 \; save-b
+uffer /mnt/c/Users/V.Ashok/Downloads/turn1a.txt
+####
+
+Here's model B terminal log output:
+####
+
+####
+
+Now evaluate both models pros and cons and also select a better production ready model along with each models multi axis ratings too and why. remeber we need to select only one winner so analyse each and everything in both models code for the final time precisley and very keenly and avoid anywhere explicitly mentioning reference file and any other things like that as they may lead to not promising justification and potential for rejection too.
