@@ -19,7 +19,7 @@ laxman@LAPTOP-D0BA5CIS:~/marlin/mlflow/8893$ ls
 laxman@LAPTOP-D0BA5CIS:~/marlin/mlflow/8893$ cp /mnt/c/Users/V.Ashok/Downloads/mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d.tar.gz .
 laxman@LAPTOP-D0BA5CIS:~/marlin/mlflow/8893$ ls
 mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d.tar.gz
-laxman@LAPTOP-D0BA5CIS:~/marlin/mlflow/8893$ tar -xzf mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d.tar.gz
+laxman@LAPTOP-D0BA5CIS:~/marlin/mlflow/8893$ tar -xvf mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d.tar.gz
 laxman@LAPTOP-D0BA5CIS:~/marlin/mlflow/8893$ ls
 mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d  mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d.tar.gz
 laxman@LAPTOP-D0BA5CIS:~/marlin/mlflow/8893$ cd mlflow-221d0f4a5c15f3a10dbc3b66c7a064c5b6091f2d
